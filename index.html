@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101b34">
+<title>Messmate — Mess Meal Manager</title>
+<style>
+:root{
+  --bg:#f4f6fb;--surface:#fff;--surface-2:#f8faff;--text:#17233b;--muted:#75819a;
+  --line:#e5eaf3;--primary:#3157d5;--primary-dark:#2343b1;--primary-soft:#edf1ff;
+  --teal:#0f9f8f;--teal-soft:#e7f8f4;--gold:#d69a20;--gold-soft:#fff6df;
+  --red:#d84b55;--red-soft:#fff0f1;--green:#18865d;--green-soft:#e7f7ef;
+  --shadow:0 12px 34px rgba(27,45,87,.07);--shadow-lg:0 24px 70px rgba(27,45,87,.14);
+  --radius:20px;--radius-sm:13px;color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease}
+button:active{transform:scale(.98)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #9db1ff;outline-offset:2px}
+button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+input,select,textarea{width:100%;min-width:0;color:var(--text);background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 13px;outline:none;transition:border-color .18s,box-shadow .18s}
+input:focus,select:focus,textarea:focus{border-color:#8da4ff;box-shadow:0 0 0 4px rgba(49,87,213,.09)}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);padding:0;cursor:pointer}
+label{color:var(--muted);font-size:12px;font-weight:700;display:block;margin-bottom:6px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:clamp(22px,3vw,30px);letter-spacing:-.7px;line-height:1.15;margin-bottom:5px}
+h2{font-size:16px;letter-spacing:-.2px;margin:0}
+h3{font-size:14px;margin:0}
+small,.muted{color:var(--muted)}
+.app-header{position:sticky;top:0;z-index:20;color:#fff;background:linear-gradient(115deg,#111d39 0%,#1d3261 55%,#2949a4 100%);box-shadow:0 8px 24px rgba(14,27,57,.18)}
+.header-inner{max-width:1180px;margin:auto;padding:15px 22px;display:flex;align-items:center;gap:14px}
+.brand-mark{width:43px;height:43px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(145deg,#6e8cff,#3157d5);box-shadow:inset 0 1px 0 #ffffff70,0 8px 20px #07132f55;font-weight:900;font-size:18px;flex-shrink:0}
+.brand-copy{min-width:0;flex:1}.brand-copy strong{font-size:16px;display:block;letter-spacing:-.3px}.brand-copy span{font-size:11px;color:#c6d2f5;display:block;margin-top:2px}
+.header-actions{display:flex;align-items:center;gap:9px}
+.header-date{font-size:12px;color:#d7e0fb;border:1px solid #ffffff30;border-radius:99px;padding:7px 11px;white-space:nowrap}
+main{max-width:1180px;margin:0 auto;padding:25px 22px 48px}
+.welcome{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--primary);font-weight:800;margin-bottom:7px}
+.welcome p{color:var(--muted);margin:7px 0 0}
+.pill{display:inline-flex;align-items:center;gap:7px;border-radius:99px;padding:7px 11px;background:var(--surface);border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.dot{width:7px;height:7px;background:var(--teal);border-radius:50%;display:inline-block;box-shadow:0 0 0 4px var(--teal-soft)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:18px;min-width:0;animation:rise .28s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.panel-title{display:flex;align-items:center;gap:11px;min-width:0}
+.icon-box{width:39px;height:39px;border-radius:13px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;flex-shrink:0;font-size:17px}
+.panel-subtitle{color:var(--muted);font-size:12px;margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.stat-card{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.stat-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.stat-label{color:var(--muted);font-size:12px;font-weight:700}
+.stat-icon{width:34px;height:34px;border-radius:11px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-size:15px}
+.stat-value{font-size:clamp(21px,2.4vw,29px);font-weight:800;letter-spacing:-1px;line-height:1.1;overflow-wrap:anywhere}
+.stat-foot{font-size:11px;color:var(--muted);margin-top:8px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:18px;align-items:start}
+.balance-banner{background:linear-gradient(135deg,#172748,#2e4d9f);color:white;border-radius:18px;padding:21px;position:relative;overflow:hidden}
+.balance-banner:after{content:"";position:absolute;width:190px;height:190px;border:1px solid #ffffff18;border-radius:50%;right:-60px;top:-90px;box-shadow:0 0 0 25px #ffffff08,0 0 0 50px #ffffff05}
+.balance-banner .muted{color:#cad5f5}.balance-total{font-size:29px;font-weight:850;letter-spacing:-1px;margin:6px 0 3px}.balance-caption{font-size:12px;color:#d5def9}
+.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.quick-action{display:flex;align-items:center;gap:11px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:14px;color:var(--text);min-width:0}
+.quick-action:hover{border-color:#b8c7ff;box-shadow:0 8px 20px #3157d510;transform:translateY(-2px)}
+.quick-icon{width:37px;height:37px;border-radius:12px;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary);flex-shrink:0;font-size:17px}
+.quick-action strong{display:block;font-size:13px}.quick-action small{display:block;font-size:11px;margin-top:2px}
+.nav{display:flex;gap:7px;padding:6px;background:#e9edf6;border-radius:15px;margin-bottom:20px;overflow:visible;flex-wrap:wrap}
+.nav button{flex:1;min-width:100px;border:0;border-radius:11px;background:transparent;color:#66738e;padding:11px 12px;font-weight:750;font-size:12px;white-space:nowrap}
+.nav button.active{background:#fff;color:var(--primary);box-shadow:0 3px 10px #172b5010}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:12px;padding:11px 15px;font-weight:750;font-size:13px;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 6px 14px #3157d526}.btn-primary:hover{background:var(--primary-dark);box-shadow:0 8px 20px #3157d538}
+.btn-light{background:var(--surface);color:var(--text);border-color:var(--line)}.btn-light:hover{background:var(--surface-2);border-color:#c8d2e6}
+.btn-danger{background:var(--red-soft);color:var(--red);border-color:#ffdadd}.btn-small{padding:7px 10px;border-radius:9px;font-size:11px}
+.form-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:13px;align-items:end}
+.field{min-width:0}.span-2{grid-column:span 2}.span-3{grid-column:span 3}.span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
+.form-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.inline-note{font-size:12px;color:var(--muted);margin-top:10px}
+.table-wrap{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:600px;background:#fff}
+th,td{padding:13px 14px;border-bottom:1px solid #edf0f6;text-align:right;white-space:nowrap;font-size:12px}
+th{background:#f8faff;color:#7c879c;font-size:10px;text-transform:uppercase;letter-spacing:.65px;font-weight:800}
+td:first-child,th:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fbfcff}
+.td-name{font-weight:750;color:var(--text)}.pos{color:var(--green);font-weight:800}.neg{color:var(--red);font-weight:800}
+.empty{padding:32px 18px;text-align:center;border:1px dashed #d6deed;border-radius:15px;background:var(--surface-2)}
+.empty-icon{width:47px;height:47px;margin:0 auto 11px;display:grid;place-items:center;background:#edf1ff;color:var(--primary);border-radius:15px;font-size:21px}
+.empty strong{display:block;font-size:14px;margin-bottom:4px}.empty p{font-size:12px;color:var(--muted);margin:0}
+.notice{border-radius:13px;padding:12px 14px;font-size:12px;margin-bottom:16px;display:flex;align-items:flex-start;gap:9px}
+.notice-error{background:var(--red-soft);color:#9d3038;border:1px solid #ffd7da}.notice-success{background:var(--green-soft);color:#176b4c;border:1px solid #c8efdc}.notice-info{background:var(--primary-soft);color:#3049a6;border:1px solid #dce4ff}
+.update-card{border:1px solid #f0dfb4;background:linear-gradient(135deg,#fffaf0,#fff);border-radius:15px;padding:16px 17px;margin-bottom:10px;overflow-wrap:anywhere}
+.update-card:last-child{margin-bottom:0}.update-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}.update-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:850;color:#9a6b10}.update-date{font-size:11px;color:#a18a5c}.update-text{white-space:pre-wrap;line-height:1.65;color:#473b24}
+.update-list{display:grid;gap:10px}.update-editor{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:17px}
+.update-editor textarea{min-height:100px;resize:vertical}
+.updates-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.update-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.meal-datebar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;padding:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px}
+.meal-datebar input{width:auto;min-width:160px}.meal-list{display:grid;gap:9px}
+.meal-person{display:grid;grid-template-columns:minmax(130px,1fr) repeat(3,minmax(105px,.7fr));gap:8px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.person-info{display:flex;align-items:center;gap:10px;min-width:0}.avatar{width:35px;height:35px;border-radius:12px;background:linear-gradient(135deg,#e4eaff,#cbd7ff);display:grid;place-items:center;color:#304db9;font-size:12px;font-weight:850;flex-shrink:0}.person-name{font-size:13px;font-weight:750;overflow-wrap:anywhere}.person-total{font-size:10px;color:var(--muted);margin-top:2px}
+.meal-check{display:flex;align-items:center;gap:8px;margin:0;padding:10px;border-radius:11px;background:var(--surface-2);border:1px solid transparent;color:var(--text);font-size:11px;font-weight:700;cursor:pointer}.meal-check:has(input:checked){background:var(--primary-soft);border-color:#d6dfff;color:var(--primary)}
+.meal-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap}
+.meal-footer .muted{font-size:12px}
+.search{max-width:270px}
+.member-list{display:grid;gap:9px}.member-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid var(--line);border-radius:13px}.member-main{display:flex;align-items:center;gap:11px;min-width:0}.member-actions{display:flex;gap:7px;flex-shrink:0}
+.login-shell{min-height:100dvh;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);background:#fff}
+.login-visual{background:radial-gradient(circle at 80% 20%,#3d5fc0 0,transparent 32%),linear-gradient(145deg,#101a33,#233d7d 72%,#3157d5);color:#fff;padding:clamp(28px,6vw,78px);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.login-visual:before,.login-visual:after{content:"";position:absolute;border:1px solid #ffffff18;border-radius:50%;width:340px;height:340px;right:-100px;bottom:10%;box-shadow:0 0 0 35px #ffffff08,0 0 0 70px #ffffff05}
+.login-visual:after{width:170px;height:170px;right:30%;bottom:-80px}
+.login-brand{display:flex;align-items:center;gap:12px;position:relative;z-index:1}.login-brand strong{font-size:18px}.login-copy{position:relative;z-index:1;max-width:510px}.login-copy .eyebrow{color:#aebfff}.login-copy h1{font-size:clamp(34px,5vw,58px);letter-spacing:-2px;line-height:1.08}.login-copy p{color:#d1daf4;font-size:15px;max-width:400px;margin-top:16px}.feature-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}.feature-chip{padding:8px 11px;border:1px solid #ffffff30;background:#ffffff0c;border-radius:99px;font-size:11px;color:#e0e7ff}
+.login-footer{position:relative;z-index:1;color:#aebce5;font-size:11px}.login-side{padding:30px;display:grid;place-items:center}.login-card{width:min(100%,410px)}.login-card h2{font-size:25px;letter-spacing:-.7px;margin-bottom:7px}.login-card>p{color:var(--muted);font-size:13px;margin-bottom:26px}.login-field{margin-bottom:14px}.login-field input{padding:14px}.login-card .btn{width:100%;padding:14px}.login-divider{display:flex;align-items:center;gap:12px;color:#a2acc0;font-size:11px;margin:19px 0}.login-divider:before,.login-divider:after{content:"";height:1px;background:var(--line);flex:1}
+.toast-region{position:fixed;right:18px;bottom:18px;z-index:100;display:grid;gap:9px;width:min(360px,calc(100vw - 36px));pointer-events:none}
+.toast{pointer-events:auto;background:#17233b;color:white;padding:13px 15px;border-radius:13px;box-shadow:var(--shadow-lg);font-size:12px;display:flex;gap:10px;align-items:flex-start;animation:toastIn .22s ease both}.toast.success{border-left:4px solid #43d3a1}.toast.error{border-left:4px solid #ff7d85}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.busy-bar{height:3px;position:fixed;top:0;left:0;z-index:120;background:#80a0ff;box-shadow:0 0 12px #80a0ff;animation:loading 1.2s infinite ease-in-out;transform-origin:left}
+@keyframes loading{0%{width:0;opacity:1}70%{width:75%;opacity:1}100%{width:92%;opacity:0}}
+.skeleton{background:linear-gradient(90deg,#edf0f7 25%,#f8f9fc 45%,#edf0f7 65%);background-size:220% 100%;animation:shimmer 1.3s infinite;border-radius:10px;height:78px}
+@keyframes shimmer{to{background-position-x:-220%}}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-grid{grid-template-columns:1fr}.login-shell{grid-template-columns:1fr}.login-visual{min-height:310px;padding:28px}.login-copy h1{font-size:38px}.login-footer{margin-top:30px}.login-side{padding:36px 22px}.span-2,.span-3,.span-4,.span-5{grid-column:span 6}}
+@media(max-width:620px){
+ .header-inner{padding:12px 15px;gap:10px}.brand-mark{width:38px;height:38px;border-radius:13px}.brand-copy strong{font-size:14px}.brand-copy span{font-size:10px}.header-date{display:none}
+ main{padding:19px 13px 34px}.welcome{align-items:flex-start;flex-direction:column;margin-bottom:17px}.welcome .pill{align-self:flex-start}
+ .panel{padding:16px;border-radius:17px;margin-bottom:14px}.stats{gap:9px;margin-bottom:14px}.stat-card{padding:13px;border-radius:15px}.stat-top{margin-bottom:11px}.stat-icon{width:29px;height:29px;border-radius:9px}.stat-label{font-size:11px}.stat-value{font-size:22px}.stat-foot{font-size:10px}
+ .nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:5px;margin-bottom:15px}.nav button{min-width:0;padding:10px 4px;font-size:11px}
+ .panel-head{align-items:flex-start}.panel-head .btn{white-space:normal}.form-grid{gap:11px}.span-2,.span-3,.span-4,.span-5,.span-6,.span-7,.span-8{grid-column:span 12}
+ .form-actions .btn{flex:1}.quick-grid{gap:8px}.quick-action{padding:11px;gap:8px}.quick-icon{width:32px;height:32px}.quick-action strong{font-size:12px}.quick-action small{font-size:10px}
+ .meal-datebar{align-items:stretch}.meal-datebar input{width:100%}.meal-person{grid-template-columns:minmax(0,1fr) repeat(3,minmax(0,1fr));gap:5px;padding:9px}.person-info{grid-column:1/-1;padding-bottom:4px}.meal-check{justify-content:center;flex-direction:column;gap:5px;padding:9px 3px;font-size:10px}.meal-check input{width:20px;height:20px}
+ .meal-footer{align-items:stretch}.meal-footer .btn{width:100%}.updates-topline{align-items:flex-start}.search{max-width:none}.member-item{align-items:flex-start}.member-actions{flex-direction:column}.table-wrap{border-radius:11px}
+ .balance-banner{padding:18px}.balance-total{font-size:26px}.toast-region{right:12px;bottom:12px;width:calc(100vw - 24px)}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="app"><main><div class="skeleton"></div></main></div>
+<div id="toastRegion" class="toast-region" aria-live="polite"></div>
+<script>
+/* Paste your deployed Google Apps Script web app URL (ending in /exec). */
+const API_URL="PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+const MEAL_WEIGHTS=[0.5,1,1];
+let S={members:[],payments:[],buys:[],meals:{},updates:[]};
+let role=null,tab="dash",loaded=false,busy=false,msg="",PW="",mealDate="",savingPromise=null,toastTimer=null,editingUpdateId=null;
+const $=s=>document.querySelector(s);
+const uid=()=>Math.random().toString(36).slice(2,10);
+const fmt=n=>(Math.round((Number(n)||0)*100)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today=()=>iso(new Date());
+const ago=n=>{const d=new Date();d.setDate(d.getDate()-n);return iso(d)};
+const canEdit=d=>d<=today()&&d>=ago(2);
+const initials=n=>String(n||"?").trim().split(/\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase();
+const money=n=>"৳ "+fmt(n);
+function toast(text,type="success"){
+ const region=$("#toastRegion");if(!region)return;
+ const el=document.createElement("div");el.className="toast "+type;el.textContent=(type==="success"?"✓  ":type==="error"?"!  ":"•  ")+text;
+ region.appendChild(el);setTimeout(()=>{el.style.opacity="0";el.style.transform="translateY(8px)";setTimeout(()=>el.remove(),220)},3600);
+}
+function busyBar(on){let el=$("#busyBar");if(on&&!el){el=document.createElement("div");el.id="busyBar";el.className="busy-bar";document.body.appendChild(el)}else if(!on&&el)el.remove()}
+async function api(body){
+ if(!API_URL||API_URL.includes("PASTE_YOUR"))throw new Error("Add your deployed Apps Script URL to API_URL first.");
+ const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});
+ if(!r.ok)throw new Error("Server returned HTTP "+r.status);
+ const j=await r.json();return j;
+}
+function normalizeState(state){
+ const x=state||{};
+ return {members:Array.isArray(x.members)?x.members:[],payments:Array.isArray(x.payments)?x.payments:[],buys:Array.isArray(x.buys)?x.buys:[],meals:x.meals&&typeof x.meals==="object"?x.meals:{},updates:Array.isArray(x.updates)?x.updates.slice(-2):[]};
+}
+async function load(){
+ try{
+  const r=await fetch(API_URL);if(!r.ok)throw new Error("HTTP "+r.status);
+  const j=await r.json();if(j.state)S=normalizeState(j.state);else if(j.ok===false)throw new Error(j.error||"Unable to read data.");
+  msg="";return true;
+ }catch(e){msg=API_URL.includes("PASTE_YOUR")?"Set API_URL to your deployed Apps Script /exec URL.":"Could not load data. Check the API URL, deployment access, and internet connection.";return false}
+ finally{loaded=true}
+}
+async function save(successText="Changes saved"){
+ if(busy){toast("A save is already in progress. Please wait.","error");return false}
+ busy=true;busyBar(true);render();
+ try{
+  const j=await api({password:PW,state:S});
+  if(!j.ok)throw new Error(j.error||"The server could not save your changes.");
+  msg="";toast(successText);return true;
+ }catch(e){msg=e.message||"Save failed. Please try again.";toast(msg,"error");return false}
+ finally{busy=false;busyBar(false);render()}
+}
+async function continueAsMember(){
+ role="user";tab="dash";loaded=false;render();
+ await load();render();
+ if(msg)toast(msg,"error");
+}
+function signOut(){if(busy){toast("Please wait for the current save to finish.","error");return}role=null;PW="";tab="dash";msg="";editingUpdateId=null;render()}
+async function adminLogin(){
+ const p=$("#pw")?.value||"";if(!p.trim()){toast("Enter the administrator password.","error");$("#pw")?.focus();return}
+ if(busy)return;busy=true;busyBar(true);render();
+ try{
+  const j=await api({action:"check",password:p});
+  if(!j.ok){msg="Incorrect password. Please try again.";role=null;PW="";return}
+  PW=p;role="admin";loaded=false;tab="dash";render();await load();
+ }catch(e){msg=e.message||"Network error. Check the API URL."}
+ finally{busy=false;busyBar(false);render();if(msg)toast(msg,"error")}
+}
+function calc(){
+ const tb=S.buys.reduce((a,b)=>a+(Number(b.amt)||0),0);
+ const rows=S.members.map(m=>{
+  let meals=0;
+  Object.values(S.meals).forEach(d=>{const a=d[m.id]||[0,0,0];meals+=(a[0]?0.5:0)+(a[1]?1:0)+(a[2]?1:0)});
+  const paid=S.payments.filter(p=>p.mid===m.id).reduce((a,p)=>a+(Number(p.amt)||0),0);
+  return {m,meals,paid,cost:0,refund:0};
+ });
+ const tm=rows.reduce((a,r)=>a+r.meals,0),rate=tm?tb/tm:0;
+ rows.forEach(r=>{r.cost=rate*r.meals;r.refund=r.paid-r.cost});
+ return {tb,tm,rate,rows,paid:rows.reduce((a,r)=>a+r.paid,0)};
+}
+function panelHead(icon,title,subtitle="",right=""){
+ return `<div class="panel-head"><div class="panel-title"><div class="icon-box">${icon}</div><div><h2>${title}</h2>${subtitle?`<div class="panel-subtitle">${subtitle}</div>`:""}</div></div>${right}</div>`;
+}
+function emptyState(icon,title,desc){return `<div class="empty"><div class="empty-icon">${icon}</div><strong>${title}</strong><p>${desc}</p></div>`}
+function report(c){
+ if(!c.rows.length)return emptyState("♙","No members yet","Add members to start seeing meal costs and balances.");
+ return `<div class="table-wrap"><table><thead><tr><th>Member</th><th>Meal units</th><th>Share of cost</th><th>Paid</th><th>Balance</th></tr></thead><tbody>
+ ${c.rows.map(x=>`<tr><td><span class="td-name">${esc(x.m.name)}</span></td><td>${fmt(x.meals)}</td><td>${money(x.cost)}</td><td>${money(x.paid)}</td><td class="${x.refund>=0?"pos":"neg"}">${x.refund>=0?"+ ":"− "}${money(Math.abs(x.refund))}<div style="font-size:10px;font-weight:600">${x.refund>=0?"Credit":"Due"}</div></td></tr>`).join("")}
+ </tbody></table></div>`;
+}
+function stats(c){
+ return `<div class="stats">
+ <div class="stat-card"><div class="stat-top"><span class="stat-label">Total bazar cost</span><span class="stat-icon">৳</span></div><div class="stat-value">${money(c.tb)}</div><div class="stat-foot">All recorded purchases</div></div>
+ <div class="stat-card"><div class="stat-top"><span class="stat-label">Total meal units</span><span class="stat-icon">◷</span></div><div class="stat-value">${fmt(c.tm)}</div><div class="stat-foot">Breakfast counts as half</div></div>
+ <div class="stat-card"><div class="stat-top"><span class="stat-label">Cost per meal unit</span><span class="stat-icon">↗</span></div><div class="stat-value">${money(c.rate)}</div><div class="stat-foot">Bazar cost ÷ total meal units</div></div>
+ <div class="stat-card"><div class="stat-top"><span class="stat-label">Members</span><span class="stat-icon">♙</span></div><div class="stat-value">${S.members.length}</div><div class="stat-foot">Current mess members</div></div>
+ </div>`;
+}
+function updateCards(canManage=false){
+ if(!S.updates.length)return "";
+ return `<div class="panel">${panelHead("✦","Mess updates","Important notes from your administrator")}
+ <div class="update-list">${S.updates.map(u=>`<article class="update-card"><div class="update-top"><span class="update-label">Notice</span><span class="update-date">${esc(u.date||"")}</span></div><div class="update-text">${esc(u.text)}</div>${canManage?`<div class="update-actions"><button class="btn btn-light btn-small" onclick="beginEditUpdate('${u.id}')">Edit</button><button class="btn btn-danger btn-small" onclick="delU('${u.id}')">Delete</button></div>`:""}</article>`).join("")}</div></div>`;
+}
+function dashboard(c,adm){
+ const credit=c.rows.reduce((a,r)=>a+Math.max(0,r.refund),0),due=c.rows.reduce((a,r)=>a+Math.max(0,-r.refund),0);
+ return `${!adm?updateCards(false):""}
+ <div class="welcome"><div><div class="eyebrow">${adm?"ADMIN WORKSPACE":"MESS OVERVIEW"}</div><h1>${adm?"Everything in one place":"Your mess, made simple"}</h1><p>${adm?"Manage meals, purchases, payments and member records without the clutter.":"Here’s the latest overview of meals, expenses and member balances."}</p></div><span class="pill"><i class="dot"></i> Data ${loaded?"loaded":"loading"}</span></div>
+ ${stats(c)}
+ <div class="hero-grid"><div>
+  <div class="panel">${panelHead("▤","Member balances","A clear breakdown of each member's share")}${report(c)}</div>
+ </div><div>
+  <div class="balance-banner"><div class="muted" style="font-size:12px;font-weight:700">Total recorded payments</div><div class="balance-total">${money(c.paid)}</div><div class="balance-caption">Collected across all members</div><div style="display:flex;gap:18px;margin-top:20px;position:relative;z-index:1"><div><div class="muted" style="font-size:11px">Member credits</div><strong>${money(credit)}</strong></div><div><div class="muted" style="font-size:11px">Amounts due</div><strong>${money(due)}</strong></div></div></div>
+  ${adm?`<div class="quick-grid"><button class="quick-action" onclick="go('meals')"><span class="quick-icon">◷</span><span><strong>Record meals</strong><small>Daily meal entry</small></span></button><button class="quick-action" onclick="go('pay')"><span class="quick-icon">৳</span><span><strong>Add payment</strong><small>Record a collection</small></span></button><button class="quick-action" onclick="go('buy')"><span class="quick-icon">＋</span><span><strong>Add bazar cost</strong><small>Track purchases</small></span></button><button class="quick-action" onclick="go('members')"><span class="quick-icon">♙</span><span><strong>Manage members</strong><small>Member list</small></span></button></div>`:""}
+ </div></div>`;
+}
+function go(t){tab=t;render();window.scrollTo({top:0,behavior:"smooth"})}
+function mealsTab(){
+ const d=mealDate||today(),ok=canEdit(d),cur=S.meals[d]||{};
+ return `<div class="panel">${panelHead("◷","Daily meals","Record breakfast, lunch and dinner for each member")}
+ <div class="meal-datebar"><div><label for="md">Meal date</label><input id="md" type="date" value="${d}" max="${today()}" min="${ago(2)}" onchange="mealDate=this.value;render()"></div><span class="pill">${ok?"● Open for editing":"🔒 Editing window closed"}</span></div>
+ ${!ok?`<div class="notice notice-info">Meals can be edited for today and the previous two days only.</div>`:""}
+ ${!S.members.length?emptyState("♙","Add your members first","Once members are added, their daily meal controls will appear here."):`
+ <div class="meal-list">${S.members.map(m=>{const v=cur[m.id]||[0,0,0],units=(v[0]?0.5:0)+(v[1]?1:0)+(v[2]?1:0);return `<div class="meal-person"><div class="person-info"><span class="avatar">${esc(initials(m.name))}</span><div><div class="person-name">${esc(m.name)}</div><div class="person-total">${fmt(units)} meal units today</div></div></div>${["Breakfast · ½","Lunch","Dinner"].map((n,i)=>`<label class="meal-check"><input type="checkbox" data-m="${esc(m.id)}" data-i="${i}" ${v[i]?"checked":""} ${ok&&!busy?"":"disabled"} onchange="updateMealUnit(this,'${m.id}')"><span>${n}</span></label>`).join("")}</div>`}).join("")}</div>
+ <div class="meal-footer"><span class="muted">Breakfast = 0.5 · Lunch and dinner = 1 each</span><button class="btn btn-primary" onclick="saveMeals()" ${ok&&!busy?"":"disabled"}>✓ &nbsp; Save daily meals</button></div>`}
+ </div>`;
+}
+function updateMealUnit(el,id){
+ const row=el.closest(".meal-person");const boxes=[...row.querySelectorAll('input[type="checkbox"]')];
+ const units=(boxes[0].checked?.5:0)+(boxes[1].checked?1:0)+(boxes[2].checked?1:0);
+ row.querySelector(".person-total").textContent=fmt(units)+" meal units today";
+}
+async function saveMeals(){
+ const d=$("#md")?.value;if(!d||!canEdit(d)){toast("This date is outside the meal editing window.","error");return}
+ const o={};S.members.forEach(m=>o[m.id]=[0,1,2].map(i=>document.querySelector(`[data-m="${CSS.escape(m.id)}"][data-i="${i}"]`)?.checked?1:0));
+ S.meals[d]=o;await save("Daily meals saved");
+}
+function membersTab(){
+ return `<div class="panel">${panelHead("♙","Members","Keep the people in your mess up to date")}
+ <form id="memberForm" onsubmit="addM(event)"><div class="form-grid"><div class="field span-8"><label for="nm">Member name</label><input id="nm" maxlength="80" placeholder="e.g. Rahim Ahmed" autocomplete="off" required></div><div class="field span-4"><button class="btn btn-primary" type="submit" style="width:100%" ${busy?"disabled":""}>＋ Add member</button></div></div></form>
+ <div style="height:18px"></div>${S.members.length?`<div class="member-list">${S.members.map(m=>`<div class="member-item"><div class="member-main"><span class="avatar">${esc(initials(m.name))}</span><div><div class="person-name">${esc(m.name)}</div><div class="person-total">Member account</div></div></div><div class="member-actions"><button class="btn btn-light btn-small" onclick="renameM('${m.id}')">Rename</button><button class="btn btn-danger btn-small" onclick="delM('${m.id}')">Remove</button></div></div>`).join("")}</div>`:emptyState("♙","No members added","Add the first member using the form above.")}</div>`;
+}
+async function addM(e){e?.preventDefault();const n=$("#nm")?.value.trim();if(!n)return;if(S.members.some(m=>m.name.trim().toLowerCase()===n.toLowerCase())){toast("A member with that name already exists.","error");return}S.members.push({id:uid(),name:n});await save("Member added")}
+async function renameM(id){const m=S.members.find(x=>x.id===id);if(!m)return;const n=prompt("Update member name",m.name);if(n===null)return;if(!n.trim()){toast("Name cannot be empty.","error");return}m.name=n.trim();await save("Member name updated")}
+async function delM(id){const m=S.members.find(x=>x.id===id);if(!m)return;if(!confirm(`Remove ${m.name} and their linked meals and payments? This cannot be undone.`))return;S.members=S.members.filter(x=>x.id!==id);S.payments=S.payments.filter(p=>p.mid!==id);Object.values(S.meals).forEach(d=>delete d[id]);await save("Member removed")}
+function payTab(){
+ return `<div class="panel">${panelHead("৳","Payments","Record money received from a member")}
+ <form id="paymentForm" onsubmit="addP(event)"><div class="form-grid"><div class="field span-4"><label for="pm">Member</label><select id="pm" required ${!S.members.length?"disabled":""}>${S.members.map(m=>`<option value="${esc(m.id)}">${esc(m.name)}</option>`).join("")}</select></div><div class="field span-4"><label for="pa">Amount (৳)</label><input id="pa" type="number" min="0.01" step="0.01" placeholder="0.00" required></div><div class="field span-4"><label>Payment date</label><input type="text" value="${today()} (today)" disabled></div></div><div class="form-actions"><button class="btn btn-primary" type="submit" ${!S.members.length||busy?"disabled":""}>＋ Record payment</button></div><div class="inline-note">The payment date is set automatically to today by the server.</div></form>
+ <div style="height:23px"></div>${panelHead("▤","Payment history",`${S.payments.length} recorded payment${S.payments.length===1?"":"s"}`,`<input class="search" id="paySearch" placeholder="Search member…" oninput="filterTable('paySearch','paymentsTable')">`)}
+ ${S.payments.length?`<div class="table-wrap"><table id="paymentsTable"><thead><tr><th>Date</th><th>Member</th><th>Amount</th><th>Action</th></tr></thead><tbody>${[...S.payments].reverse().map(p=>`<tr><td>${esc(p.date)}</td><td data-search="${esc((S.members.find(m=>m.id===p.mid)||{}).name||"").toLowerCase()}"><span class="td-name">${esc((S.members.find(m=>m.id===p.mid)||{}).name||"Unknown member")}</span></td><td>${money(p.amt)}</td><td><button class="btn btn-danger btn-small" onclick="delItem('payments','${p.id}')">Delete</button></td></tr>`).join("")}</tbody></table></div>`:emptyState("৳","No payments yet","Recorded payments will appear here.")}</div>`;
+}
+async function addP(e){e?.preventDefault();const a=Number($("#pa")?.value),mid=$("#pm")?.value;if(!(a>0)||!mid){toast("Choose a member and enter an amount greater than zero.","error");return}S.payments.push({id:uid(),mid,amt:a,date:today()});await save("Payment recorded")}
+function buyTab(){
+ return `<div class="panel">${panelHead("＋","Bazar & expenses","Record purchases made for the mess")}
+ <form id="buyForm" onsubmit="addB(event)"><div class="form-grid"><div class="field span-5"><label for="bn">Item or note</label><input id="bn" maxlength="120" placeholder="e.g. Rice, vegetables, oil" required></div><div class="field span-3"><label for="ba">Amount (৳)</label><input id="ba" type="number" min="0.01" step="0.01" placeholder="0.00" required></div><div class="field span-2"><label for="bd">Purchase date</label><input id="bd" type="date" value="${today()}" max="${today()}" required></div><div class="field span-2"><button class="btn btn-primary" type="submit" style="width:100%" ${busy?"disabled":""}>＋ Add</button></div></div></form>
+ <div style="height:22px"></div>${panelHead("▤","Expense history",`${S.buys.length} purchase${S.buys.length===1?"":"s"}`,`<input class="search" id="buySearch" placeholder="Search item…" oninput="filterTable('buySearch','buysTable')">`)}
+ ${S.buys.length?`<div class="table-wrap"><table id="buysTable"><thead><tr><th>Date</th><th>Item / note</th><th>Amount</th><th>Action</th></tr></thead><tbody>${[...S.buys].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).map(p=>`<tr><td>${esc(p.date)}</td><td data-search="${esc(p.note||"").toLowerCase()}"><span class="td-name">${esc(p.note||"Purchase")}</span></td><td>${money(p.amt)}</td><td><button class="btn btn-danger btn-small" onclick="delItem('buys','${p.id}')">Delete</button></td></tr>`).join("")}</tbody></table></div>`:emptyState("＋","No purchases recorded","Add a bazar expense above to start tracking mess costs.")}</div>`;
+}
+async function addB(e){e?.preventDefault();const a=Number($("#ba")?.value),note=$("#bn")?.value.trim(),date=$("#bd")?.value;if(!(a>0)||!note||!date){toast("Enter an item, amount and purchase date.","error");return}if(date>today()){toast("Purchase date cannot be in the future.","error");return}S.buys.push({id:uid(),note,amt:a,date});await save("Bazar expense added")}
+async function delItem(k,id){const item=S[k].find(x=>x.id===id);if(!item)return;if(!confirm(`Delete this ${k==="payments"?"payment":"purchase"}${item.note?" (“"+item.note+"”)":""}?`))return;S[k]=S[k].filter(x=>x.id!==id);await save(k==="payments"?"Payment deleted":"Purchase deleted")}
+function updTab(){
+ const n=S.updates.length,edit=editingUpdateId?S.updates.find(u=>u.id===editingUpdateId):null;
+ return `<div class="panel">${panelHead("✦","Mess updates","Share important information with everyone",`<span class="pill">${n}/2 notices</span>`)}
+ ${n<2||edit?`<div class="update-editor"><div class="updates-topline"><div><h3>${edit?"Edit notice":"Create a notice"}</h3><div class="panel-subtitle">${edit?"Make your changes and save them.":"Write a clear message for all members to see."}</div></div></div><form onsubmit="submitUpdate(event)"><div class="field"><label for="ut">Message</label><textarea id="ut" maxlength="1000" placeholder="e.g. Please submit this week's bazar contribution by Friday…" required>${edit?esc(edit.text):""}</textarea></div><div class="form-actions"><button class="btn btn-primary" type="submit">${edit?"Save changes":"＋ Publish update"}</button>${edit?`<button class="btn btn-light" type="button" onclick="cancelEditUpdate()">Cancel</button>`:""}</div><div class="inline-note">Up to two active notices. The message will be visible on the member dashboard.</div></form></div>`:`<div class="notice notice-info">You already have two active notices. Delete or edit an existing notice before publishing another.</div>`}
+ ${n?`<div class="updates-topline"><div><h3>Published notices</h3><div class="panel-subtitle">These are currently visible to members.</div></div></div><div class="update-list">${S.updates.map(u=>`<article class="update-card"><div class="update-top"><span class="update-label">Published notice</span><span class="update-date">${esc(u.date||"")}</span></div><div class="update-text">${esc(u.text)}</div><div class="update-actions"><button class="btn btn-light btn-small" onclick="beginEditUpdate('${u.id}')">Edit notice</button><button class="btn btn-danger btn-small" onclick="delU('${u.id}')">Delete</button></div></article>`).join("")}</div>`:emptyState("✦","No notices published","When you publish an update, it will appear here and on the member dashboard.")}</div>`;
+}
+async function submitUpdate(e){e?.preventDefault();const t=$("#ut")?.value.trim();if(!t){toast("Write a message before publishing.","error");return}if(editingUpdateId){const u=S.updates.find(x=>x.id===editingUpdateId);if(!u)return;u.text=t;u.date=today();editingUpdateId=null;await save("Notice updated")}else{if(S.updates.length>=2){toast("Only two active notices are allowed.","error");return}S.updates.push({id:uid(),text:t,date:today()});await save("Notice published")}}
+function beginEditUpdate(id){editingUpdateId=id;render();$("#ut")?.focus();$("#ut")?.scrollIntoView({behavior:"smooth",block:"center"})}
+function cancelEditUpdate(){editingUpdateId=null;render()}
+async function delU(id){const u=S.updates.find(x=>x.id===id);if(!u||!confirm("Delete this notice? Members will no longer see it."))return;if(editingUpdateId===id)editingUpdateId=null;S.updates=S.updates.filter(x=>x.id!==id);await save("Notice deleted")}
+function filterTable(inputId,tableId){const q=($("#"+inputId)?.value||"").toLowerCase();$("#"+tableId)?.querySelectorAll("tbody tr").forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(q)?"":"none"})}
+function login(){
+ return `<div class="login-shell"><section class="login-visual"><div class="login-brand"><span class="brand-mark">M</span><strong>Messmate</strong></div><div class="login-copy"><div class="eyebrow">A smarter way to manage your mess</div><h1>Less confusion.<br>More control.</h1><p>Keep meals, bazar expenses and payments organized in one calm, clear workspace.</p><div class="feature-chips"><span class="feature-chip">✓ Meal tracking</span><span class="feature-chip">✓ Expense records</span><span class="feature-chip">✓ Member balances</span></div></div><div class="login-footer">A simple, transparent way to manage shared living costs.</div></section>
+ <section class="login-side"><div class="login-card"><div class="eyebrow">WELCOME</div><h2>Mess management, made easy</h2><p>Continue to view the latest mess overview, or sign in to manage records.</p><button class="btn btn-primary" onclick="continueAsMember()" ${busy?"disabled":""}>Continue as member <span aria-hidden="true">→</span></button><div class="login-divider">ADMIN ACCESS</div><form onsubmit="adminLogin();return false"><div class="login-field"><label for="pw">Administrator password</label><input id="pw" type="password" placeholder="Enter admin password" autocomplete="current-password" required></div><button class="btn btn-light" type="submit" ${busy?"disabled":""}>Sign in to dashboard</button></form>${msg?`<div class="notice notice-error" style="margin-top:15px;margin-bottom:0">${esc(msg)}</div>`:""}</div></section></div>`;
+}
+function shellHeader(adm){
+ return `<header class="app-header"><div class="header-inner"><span class="brand-mark">M</span><div class="brand-copy"><strong>Messmate</strong><span>${adm?"Administrator workspace":"Member overview"}</span></div><div class="header-actions"><span class="header-date">${new Date().toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</span><button class="btn btn-light btn-small" onclick="signOut()">Sign out</button></div></div></header>`;
+}
+function skeleton(){return `${shellHeader(role==="admin")}<main><div class="welcome"><div><div class="skeleton" style="width:150px;height:12px;margin-bottom:14px"></div><div class="skeleton" style="width:270px;height:32px"></div></div></div><div class="stats">${[1,2,3,4].map(()=>'<div class="skeleton"></div>').join("")}</div><div class="panel"><div class="skeleton" style="height:180px"></div></div></main>`}
+function render(){
+ const a=$("#app");if(!role){a.innerHTML=login();return}if(!loaded){a.innerHTML=skeleton();return}
+ const adm=role==="admin",c=calc(),tabs=[["dash","Overview"],["upd","Updates"],["meals","Meals"],["members","Members"],["pay","Payments"],["buy","Bazar"]];
+ a.innerHTML=`${shellHeader(adm)}<main>${msg?`<div class="notice notice-error">${esc(msg)}</div>`:""}
+ ${adm?`<nav class="nav" aria-label="Main navigation">${tabs.map(t=>`<button class="${tab===t[0]?"active":""}" onclick="go('${t[0]}')">${t[1]}</button>`).join("")}</nav>`:""}
+ ${!adm||tab==="dash"?dashboard(c,adm):""}
+ ${adm&&tab==="upd"?updTab():""}${adm&&tab==="meals"?mealsTab():""}${adm&&tab==="members"?membersTab():""}${adm&&tab==="pay"?payTab():""}${adm&&tab==="buy"?buyTab():""}
+ <div style="text-align:center;color:var(--muted);font-size:10px;padding:14px 0 0">Messmate · Simple, transparent mess management</div></main>`;
+}
+render();
+setInterval(async()=>{if(role==="user"&&!busy){await load();render()}},30000);
+</script>
+</body>
+</html>
