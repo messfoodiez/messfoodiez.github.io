@@ -129,7 +129,6 @@ const skelCard=(body="")=>`<div class="card"><div class="skel skel-line lg skel-
 function skelDashboard(){
   const adm=role==="admin";
   return `<header><h1>Mess Meal Manager<small>${adm?"Administrator console":"Member view"}</small></h1><button class="g" onclick="signOut()">Sign out</button></header><main>
-    ${skelUpdate()}${skelUpdate()}
     ${adm?skelTabs():""}
     ${skelCard(skelStats())}
     ${skelCard(skelTable(5,4))}
@@ -146,7 +145,7 @@ async function load(){
     if(S.calculation&&(!Array.isArray(S.calculationHistory)||!S.calculationHistory.length)){S.calculationHistory=[Object.assign({id:uid(),type:"overall",month:null},JSON.parse(JSON.stringify(S.calculation)))];}
     msg="";
   }catch(e){
-    msg="Could not load data. Check API_URL and that the web app is deployed to 'Anyone'.";
+    msg="Could not load data.";
   }
   loaded=true;
 }
