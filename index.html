@@ -145,9 +145,9 @@ function mealsTab(){
   const d=md||today(),ok=canEdit(d),cur=S.meals[d]||{};
   return `<div class="card"><h2>Daily meals</h2>
   <div class="row"><input type="date" id="md" value="${d}" max="${today()}" min="${ago(2)}" onchange="md=this.value;render()">
-  <span class="mu">${ok?"Open for entry":"Locked: meals can only be added on the day or within 2 days after."} · Breakfast = ½ meal</span></div>
+  <span class="mu">${ok?"Open for entry":"Locked: meals can only be added on the day or within 2 days after."}</span></div>
   ${S.members.map(m=>{const v=cur[m.id]||[0,0,0];
-    return `<div class="mrow"><span>${esc(m.name)}</span>${["Breakfast (½)","Lunch","Dinner"].map((n,i)=>
+    return `<div class="mrow"><span>${esc(m.name)}</span>${["Breakfast","Lunch","Dinner"].map((n,i)=>
       `<label><input type="checkbox" data-m="${m.id}" data-i="${i}" ${v[i]?"checked":""} ${ok?"":"disabled"}>${n}</label>`).join("")}</div>`
   }).join("")||'<p class="mu">Add members first.</p>'}
   ${ok&&S.members.length?'<div class="row" style="margin-top:12px"><button onclick="saveMeals()" '+(busy?"disabled":"")+'>Save meals for this day</button></div>':""}</div>`;
