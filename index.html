@@ -85,7 +85,6 @@ input[type=checkbox]{accent-color:var(--green);width:17px;height:17px;margin:0}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbz3JUxgJhZ-bCrSExvRWTXkPgXIV3uoaBmfElIJEQnGnrSb4gYoDCI83IshTEFxsyiXQg/exec";
-// Breakfast = 0.5 meal, Lunch & Dinner = 1 each
 const MEAL_WEIGHTS=[0.5,1,1];
 const DEF=()=>({members:[],payments:[],buys:[],meals:{},updates:[],calculation:null,calculationHistory:[],monthCalculations:{},chartSettings:{metric:"meals",period:"all",type:"pie"}});
 let S=DEF(),role=null,tab="dash",loaded=false,busy=false,msg="",PW="",md=null,verifyingAdmin=false,pieChart=null,modalKind="",myChart=null,pq="",bq="",ps="new",bs="new";
@@ -170,9 +169,9 @@ function report(c){
   </tbody></table></div><p class="note">Live totals from all recorded meals, purchases and payments.</p>`;
 }
 function dashTab(c,adm){
-  return pageTitle("OVERVIEW","Dashboard",adm?"Here’s what’s happening in your mess.":"Your mess summary at a glance.")+summary(c)+
+  return pageTitle("OVERVIEW","Dashboard",adm?"Here’s what’s happening in mess.": "Mess summary at a glance.")+summary(c)+
   `<div class="panel"><div class="panelhead"><div><h3>Mess updates</h3><p>Latest announcements</p></div></div>${updList(false)}</div>
-  <div class="panel"><div class="panelhead"><div><h3>Overall Cost Table</h3><p>Meal rate, cost and member balances</p></div>${adm?'<button class="btn calc tiny" onclick="confirmCalculate()">Calculate</button>':""}</div>${report(c)}</div>`;
+  <div class="panel"><div class="panelhead"><div><h3>Overall Cost Table</h3><p>Meal Summary</p></div>${adm?'<button class="btn calc tiny" onclick="confirmCalculate()">Calculate</button>':""}</div>${report(c)}</div>`;
 }
 /* ---------- Updates ---------- */
 function updTab(){
@@ -222,7 +221,7 @@ function payTable(){
 }
 function payTab(){
   const total=S.payments.reduce((a,p)=>a+(Number(p.amt)||0),0);
-  return pageTitle("MONEY IN","Payments","Track member deposits in one place.",`<button class="btn" onclick="openModal('payment')">＋ Add payment</button>`)+
+  return pageTitle("Payments","Track member deposits in one place.",`<button class="btn" onclick="openModal('payment')">＋ Add payment</button>`)+
   `<div class="summarystrip">${sbox("Total received",fmt(total))}${sbox("Payment entries",S.payments.length)}${sbox("Members paid",new Set(S.payments.map(x=>x.mid)).size)}</div>
   <div class="panel"><div class="panelhead"><div><h3>Payment history</h3><p>Latest member payment entries</p></div><span class="status">Updated</span></div>
   <div class="toolbar"><input class="control search" id="paySearch" placeholder="🔍 Search member or note…" value="${esc(pq)}" oninput="pq=this.value;$('#payRows').innerHTML=payTable()"><select class="control" id="paySort" onchange="ps=this.value;$('#payRows').innerHTML=payTable()"><option value="new" ${ps==="new"?"selected":""}>Newest first</option><option value="old" ${ps==="old"?"selected":""}>Oldest first</option><option value="high" ${ps==="high"?"selected":""}>Highest amount</option></select></div>
@@ -238,7 +237,7 @@ function buyTable(){
 }
 function buyTab(){
   const total=S.buys.reduce((a,b)=>a+(Number(b.amt)||0),0);
-  return pageTitle("MONEY OUT","Buying","Record grocery purchases and follow kitchen spending.",`<button class="btn" onclick="openModal('buy')">＋ Add buying cost</button>`)+
+  return pageTitle("Buying","Record grocery purchases and follow kitchen spending.",`<button class="btn" onclick="openModal('buy')">＋ Add buying cost</button>`)+
   `<div class="summarystrip">${sbox("Overall Expense",fmt(total))}${sbox("Purchase entries",S.buys.length)}${sbox("Average purchase",fmt(S.buys.length?total/S.buys.length:0))}</div>
   <div class="panel"><div class="panelhead"><div><h3>Buying history</h3><p>Food and kitchen purchases</p></div><span class="status">Expense log</span></div>
   <div class="toolbar"><input class="control search" id="buySearch" placeholder="🔍 Search item or note…" value="${esc(bq)}" oninput="bq=this.value;$('#buyRows').innerHTML=buyTable()"><select class="control" id="buySort" onchange="bs=this.value;$('#buyRows').innerHTML=buyTable()"><option value="new" ${bs==="new"?"selected":""}>Newest first</option><option value="old" ${bs==="old"?"selected":""}>Oldest first</option><option value="high" ${bs==="high"?"selected":""}>Highest cost</option></select></div>
@@ -354,7 +353,7 @@ function login(){
   return `<div class="login">
   <p class="mu" style="font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin:0 0 8px;font-size:11px">MESS MANAGEMENT</p>
   <h1>Welcome to your mess.</h1>
-  <p class="mu" style="margin:0 0 24px">A simpler way to track daily meals, costs and balances.</p>
+  <p class="mu" style="margin:0 0 24px">A simpler way to track daily meals</p>
   <button class="btn" onclick="continueAsMember()">View dashboard as member <span aria-hidden="true">→</span></button>
   <hr>
   <p class="mu" style="margin:0 0 12px;font-weight:750">🔐 Administrator sign-in</p>
@@ -385,7 +384,7 @@ function render(){
   if(!role){a.innerHTML=login();return}
   if(!loaded){a.innerHTML=skelDashboard();return}
   const c=calc(),adm=role==="admin";
-  const tabs=[["dash","📊","Dashboard"],["upd","📣","Updates"],["meals","✅","Meals"],["members","👥","Members"],["pay","💳","Payments"],["buy","🛒","Buying"],["reports","🗓","Reports"],["charts","📈","Charts"]];
+  const tabs=[["dash","📂","Dashboard"],["upd","📣","Updates"],["meals","🍽️","Meals"],["members","👥","Members"],["pay","💸","Payments"],["buy","🛒","Buying"],["reports","🗒","Reports"],["charts","📈","Charts"]];
   const visible=adm?tabs:[tabs[0],tabs[7]];
   if(!visible.some(t=>t[0]===tab))tab="dash";
   a.innerHTML=`${topbar(adm)}
