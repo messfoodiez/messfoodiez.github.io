@@ -351,7 +351,7 @@ function payTable(){
   const q=pq.toLowerCase();
   const list=sortList(S.payments,ps).filter(p=>!q||(memName(p.mid)+" "+(p.note||"")).toLowerCase().includes(q));
   return `<div class="tablewrap"><table><thead><tr><th>Member</th><th>Date</th><th>Payment note</th><th>Amount</th><th></th></tr></thead><tbody>
-  ${list.map(p=>`<tr><td><div class="person">${av(memName(p.mid))}${esc(memName(p.mid))}</div></td><td>${esc(p.date)}</td><td>${esc(p.note||"—")}</td><td class="amount pos">${fmt(p.amt)}</td><td><button class="btn danger tiny" onclick="delItem('payments','${p.id}')">Delete</button></td></tr>`).join("")||'<tr><td colspan="5"><div class="empty"><b>💳</b>No payment records yet</div></td></tr>'}
+  ${list.map(p=>`<tr><td><div class="person">${av(memName(p.mid))}${esc(memName(p.mid))}</div></td><td>${esc(p.date)}</td><td>${esc(p.note||"—")}</td><td class="amount pos">${fmt(p.amt)}</td><td><button class="btn danger tiny" onclick="delItem('payments','${p.id}')">Delete</button></td></tr>`).join("")||'<tr><td colspan="5"><div class="empty"><b>💸</b>No payment records yet</div></td></tr>'}
   </tbody></table></div>`;
 }
 function payTab(){
