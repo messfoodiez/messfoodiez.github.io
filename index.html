@@ -213,7 +213,7 @@ html[data-theme=dark] .btn.ghost{color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 try{document.documentElement.dataset.theme=localStorage.getItem("messTheme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}catch(e){}
-const API_URL="https://script.google.com/macros/s/AKfycbx9v8x9Lw1dwyaDhLJdUPcmFOMOxwe--WY4JE-KuvFBRRDHLU68Im7brq6yr0gjtIlWrw/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbzJsnfeGNH12JUn2ZEQ3EwykV2zEhyjvj-Ux4XC2Wy1BVEDD4X6hJzynLvzVr5ESrYcYQ/exec";
 const MEAL_WEIGHTS=[0.5,1,1];
 const DEF=()=>({members:[],payments:[],buys:[],meals:{},guests:[],updates:[],calculation:null,calculationHistory:[],monthCalculations:{},chartSettings:{metric:"meals",period:"all",type:"pie"}});
 let S=DEF(),role=null,rm="",loadOk=false,saveQueued=false,tab="dash",loaded=false,busy=false,msg="",PW="",md=null,verifyingAdmin=false,pieChart=null,modalKind="",myChart=null,pq="",bq="",ps="new",bs="new";
