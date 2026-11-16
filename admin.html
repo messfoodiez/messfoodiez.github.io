@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mess Meal Manager - Site Owner</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--text:#0f172a;--mu:#64748b;--line:#e2e8f0;--brand:#2563eb;--ok:#16a34a;--bad:#dc2626;--warn:#d97706}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--card:#131c2e;--text:#e5e9f2;--mu:#94a3b8;--line:#243049;--brand:#60a5fa;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24}}
+:root[data-theme="dark"]{--bg:#0b1220;--card:#131c2e;--text:#e5e9f2;--mu:#94a3b8;--line:#243049;--brand:#60a5fa;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.wrap{max-width:720px;margin:0 auto;padding:18px 14px 40px}
+h1{font-size:22px;margin:0}.mu{color:var(--mu)}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit}
+input.otp{letter-spacing:.5em;font-size:22px;text-align:center}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 14px;background:var(--brand);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.ok{background:var(--ok);color:#06200f}button.bad{background:var(--bad)}button.warn{background:var(--warn);color:#201400}
+button:disabled{opacity:.55;cursor:default}
+.err{color:var(--bad);min-height:20px;margin-top:10px;font-size:14px}
+.tabs{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto}
+.tab{white-space:nowrap}.tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.row{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.name{font-weight:800;font-size:16px}.badge{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;border:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em}
+.s-pending{color:var(--warn)}.s-active{color:var(--ok)}.s-rejected,.s-suspended{color:var(--bad)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.empty{text-align:center;padding:30px 10px}
+code{background:var(--bg);padding:1px 6px;border-radius:6px;border:1px solid var(--line)}
+</style></head><body><div class="wrap" id="app"></div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbysreQLB2-99Dv5tWzWq-HclkyUcf1IWeLmZs4mF7RK77qC4FilubJUxml31q9K7l_70A/exec";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+/* the passkey lives in memory only: reloading the page always asks for it again */
+const A={pk:"",step:"login",pkIn:"",msg:"",busy:false,list:[],tab:"pending",arm:"",poll:null};
+async function api(body){
+  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});
+  return r.json();
+}
+async function call(body){
+  try{return await api(Object.assign({passkey:A.pk},body))}
+  catch(e){return {ok:false,error:"Network error. Check your connection."}}
+}
+function signOut(m){clearInterval(A.poll);Object.assign(A,{pk:"",step:"login",pkIn:"",msg:m||"",busy:false,list:[],arm:""});render()}
+async function login(){
+  const pk=A.pkIn.trim();
+  if(!pk){A.msg="Enter the passkey.";render();return}
+  A.busy=true;A.msg="";A.pk=pk;render();
+  const j=await call({action:"ownerCheck"});A.busy=false;
+  if(!j||!j.ok){A.pk="";A.msg=(j&&j.error)||"Could not sign in.";render();return}
+  A.step="in";A.pkIn="";await refresh();
+  clearInterval(A.poll);A.poll=setInterval(()=>{if(A.pk&&!document.hidden)refresh(true)},30000);
+}
+async function refresh(quiet){
+  const j=await call({action:"ownerList"});
+  if(j&&j.ok)A.list=j.messes||[];
+  else if(j&&j.error==="Incorrect passkey"){signOut("Incorrect passkey.");return}
+  else if(j&&!quiet)A.msg=j.error||"Could not load.";
+  render();
+}
+async function act(action,code){
+  const key=action+":"+code;
+  if(A.arm!==key){A.arm=key;render();setTimeout(()=>{if(A.arm===key){A.arm="";render()}},4000);return}
+  A.arm="";A.busy=true;A.msg="";render();
+  const j=await call({action:action,code:code});A.busy=false;
+  if(!j||!j.ok)A.msg=(j&&j.error)||"That did not work.";
+  await refresh();
+}
+const ago=iso=>{const m=Math.round((Date.now()-new Date(iso).getTime())/60000);if(!(m>=0))return "";if(m<1)return "just now";if(m<60)return m+" min ago";if(m<1440)return Math.round(m/60)+" h ago";return Math.round(m/1440)+" d ago"};
+function btn(label,cls,action,code){const on=A.arm===action+":"+code;return `<button class="${on?"warn":cls}" ${A.busy?"disabled":""} onclick="act('${action}','${esc(code)}')">${on?"Tap again to confirm":label}</button>`}
+function card(m){
+  let b="";
+  if(m.status==="pending")b=btn("✅ Approve","ok","ownerApprove",m.code)+btn("✖ Reject","bad","ownerReject",m.code);
+  else if(m.status==="active")b=btn("⏸ Suspend","ghost","ownerSuspend",m.code);
+  else if(m.status==="suspended")b=btn("▶ Resume","ok","ownerResume",m.code);
+  else if(m.status==="rejected")b=btn("✅ Approve anyway","ghost","ownerApprove",m.code);
+  return `<div class="card"><div class="row"><div><div class="name">${esc(m.name)}</div><div class="mu">${esc(m.email||"no email")} · ${esc(ago(m.createdAt))}</div></div><span class="badge s-${esc(m.status)}">${esc(m.status)}</span></div>
+  <div class="mu" style="margin-top:6px">Mess code: <code>${esc(m.code)}</code></div>${b?`<div class="acts">${b}</div>`:""}</div>`;
+}
+function render(){
+  const a=$("#app");
+  if(A.step==="login")a.innerHTML=`<div class="top"><h1>🔐 Site owner</h1></div><div class="card"><p style="margin-top:0">Only the site owner can approve new messes. Enter your passkey to continue.</p><input id="pk" type="password" autocomplete="current-password" placeholder="Owner passkey" value="${esc(A.pkIn)}" oninput="A.pkIn=this.value" onkeydown="if(event.key==='Enter')login()"><div class="err" role="status">${esc(A.msg)}</div><button style="width:100%" onclick="login()" ${A.busy?"disabled":""}>${A.busy?"Checking…":"Unlock"}</button></div>`;
+  else{
+    const c=s=>A.list.filter(m=>s.includes(m.status)),groups={pending:c(["pending"]),active:c(["active"]),other:c(["suspended","rejected"])};
+    const tabs=[["pending","Pending"],["active","Active"],["other","Suspended / rejected"]];
+    const list=groups[A.tab]||[];
+    a.innerHTML=`<div class="top"><div><h1>🛡️ Mess requests</h1><div class="mu">${groups.pending.length} waiting · ${groups.active.length} active</div></div><div style="display:flex;gap:8px"><button class="ghost" onclick="refresh()">↻</button><button class="ghost" onclick="signOut()">Sign out</button></div></div>
+    <div class="tabs">${tabs.map(t=>`<button class="ghost tab ${A.tab===t[0]?"on":""}" onclick="A.tab='${t[0]}';A.arm='';render()">${t[1]} (${groups[t[0]].length})</button>`).join("")}</div>
+    <div class="err" style="margin:0 0 8px">${esc(A.msg)}</div>
+    ${list.length?list.map(card).join(""):`<div class="card empty mu">${A.tab==="pending"?"No requests waiting. 🎉":"Nothing here."}</div>`}`;
+  }
+}
+render();
+</script></body></html>
