@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mess Meal Manager - Site Owner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f0;--card:#fff;--text:#14201d;--mu:#667873;--line:#dbe3e0;--brand:#0f766e;--brand2:#14b8a6;--ink:#0d1f1c;--ok:#15803d;--bad:#b91c1c;--warn:#b45309;--okbg:#dcfce7;--badbg:#fee2e2;--warnbg:#fef3c7;--sh:0 1px 2px rgba(15,40,35,.06),0 8px 24px -12px rgba(15,40,35,.18)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1311;--card:#121e1b;--text:#e6efec;--mu:#8ba39d;--line:#233631;--brand:#2dd4bf;--brand2:#14b8a6;--ink:#050b0a;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--okbg:#10301c;--badbg:#3a1616;--warnbg:#38290a;--sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--bg:#0a1311;--card:#121e1b;--text:#e6efec;--mu:#8ba39d;--line:#233631;--brand:#2dd4bf;--brand2:#14b8a6;--ink:#050b0a;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--okbg:#10301c;--badbg:#3a1616;--warnbg:#38290a;--sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6)}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 "DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px 48px}
+h1,.name{font-family:"Bricolage Grotesque","DM Sans",system-ui,sans-serif}
+.mu{color:var(--mu)}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 16px;background:var(--brand);color:#fff;cursor:pointer;transition:transform .12s,opacity .12s}
+button:active{transform:scale(.97)}button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brand2);outline-offset:2px}
+button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.ok{background:var(--ok);color:#fff}button.bad{background:var(--bad);color:#fff}button.warn{background:var(--warn);color:#fff}
+/* login */
+.gate{min-height:100svh;display:grid;place-items:center;padding:20px 0}
+.gatecard{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--sh);overflow:hidden}
+.gatehead{background:linear-gradient(135deg,var(--ink),#0f766e);color:#fff;padding:28px 24px}
+.lock{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:24px;margin-bottom:14px}
+.gatehead h1{font-size:26px;margin:0 0 4px;line-height:1.15}.gatehead p{margin:0;opacity:.8}
+.gatebody{padding:22px 24px 24px}
+input{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:inherit}
+input:focus{border-color:var(--brand2)}
+.err{color:var(--bad);min-height:22px;margin:10px 0;font-size:14px}
+/* header */
+.bar{position:sticky;top:0;z-index:5;margin:0 -14px;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 12px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top h1{font-size:24px;margin:0;line-height:1.1}
+.icons{display:flex;gap:8px}.icons button{padding:9px 13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:var(--sh);text-align:left;color:var(--text);font-weight:500}
+.stat b{display:block;font:800 28px/1.1 "Bricolage Grotesque",system-ui,sans-serif}
+.stat span{font-size:13px;color:var(--mu)}
+.stat.on{border-color:var(--brand2);box-shadow:0 0 0 2px var(--brand2)}
+.stat.pend b{color:var(--warn)}.stat.act b{color:var(--ok)}.stat.oth b{color:var(--bad)}
+.search{position:relative;margin-bottom:12px}
+.search input{padding-left:42px}.search i{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-style:normal;opacity:.55}
+/* cards */
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px 16px 16px 20px;margin-bottom:12px;box-shadow:var(--sh);overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--st,var(--line))}
+.card.pending{--st:var(--warn)}.card.active{--st:var(--ok)}.card.rejected,.card.suspended{--st:var(--bad)}
+.row{display:flex;gap:12px;align-items:center}
+.av{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff;font:800 19px "Bricolage Grotesque",system-ui,sans-serif}
+.who{min-width:0;flex:1}
+.name{font-weight:800;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
+.sub{font-size:13px;color:var(--mu);overflow-wrap:anywhere}
+.badge{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:99px;text-transform:capitalize}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.b-pending{color:var(--warn);background:var(--warnbg)}.b-active{color:var(--ok);background:var(--okbg)}.b-rejected,.b-suspended{color:var(--bad);background:var(--badbg)}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.code{display:inline-flex;align-items:center;gap:8px;font:600 14px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--text);cursor:pointer}
+.code small{font:500 12px "DM Sans",system-ui,sans-serif;color:var(--mu)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}.acts button{padding:9px 14px}
+.confirm{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--line);animation:pop .18s ease-out}
+.confirm span{font-weight:700}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.empty{text-align:center;padding:44px 16px;background:var(--card);border:1px dashed var(--line);border-radius:20px}
+.empty .big{font-size:38px}.empty p{margin:6px 0 0}
+.toast{margin:0 0 12px;padding:11px 14px;border-radius:14px;background:var(--badbg);color:var(--bad);font-weight:700;font-size:14px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body><div class="wrap" id="app"></div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbytXvlfueRhFtq7vKyR8bcwUw9UKP2ETHjsIa_6qd24kGBRI7aP0CvP9JLnFiU4SHWy_w/exec";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+/* the passkey lives in memory only: reloading the page always asks for it again */
+const A={pk:"",step:"login",pkIn:"",msg:"",busy:false,list:[],tab:"pending",arm:"",q:"",poll:null,copied:""};
+async function api(body){
+  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});
+  return r.json();
+}
+async function call(body){
+  try{return await api(Object.assign({passkey:A.pk},body))}
+  catch(e){return {ok:false,error:"Network error. Check your connection."}}
+}
+function signOut(m){clearInterval(A.poll);Object.assign(A,{pk:"",step:"login",pkIn:"",msg:m||"",busy:false,list:[],arm:"",q:""});render()}
+async function login(){
+  const pk=A.pkIn.trim();
+  if(!pk){A.msg="Enter the passkey.";render();return}
+  A.busy=true;A.msg="";A.pk=pk;render();
+  const j=await call({action:"ownerCheck"});A.busy=false;
+  if(!j||!j.ok){A.pk="";A.msg=(j&&j.error)||"Could not sign in.";render();return}
+  A.step="in";A.pkIn="";await refresh();
+  clearInterval(A.poll);A.poll=setInterval(()=>{if(A.pk&&!document.hidden)refresh(true)},30000);
+}
+async function refresh(quiet){
+  const j=await call({action:"ownerList"});
+  if(j&&j.ok)A.list=j.messes||[];
+  else if(j&&j.error==="Incorrect passkey"){signOut("Incorrect passkey.");return}
+  else if(j&&!quiet)A.msg=j.error||"Could not load.";
+  render();
+}
+const LBL={ownerApprove:"Approve",ownerReject:"Reject",ownerSuspend:"Suspend",ownerResume:"Resume"};
+const CLS={ownerApprove:"ok",ownerReject:"bad",ownerSuspend:"warn",ownerResume:"ok"};
+async function act(action,code){
+  const key=action+":"+code;
+  if(A.arm!==key){A.arm=key;render();return}
+  A.arm="";A.busy=true;A.msg="";render();
+  const j=await call({action:action,code:code});A.busy=false;
+  if(!j||!j.ok)A.msg=(j&&j.error)||"That did not work.";
+  await refresh();
+}
+function cancel(){A.arm="";render()}
+function copyCode(code){
+  const done=()=>{A.copied=code;render();setTimeout(()=>{if(A.copied===code){A.copied="";render()}},1500)};
+  try{navigator.clipboard.writeText(code).then(done,done)}catch(e){done()}
+}
+const ago=iso=>{const m=Math.round((Date.now()-new Date(iso).getTime())/60000);if(!(m>=0))return "";if(m<1)return "just now";if(m<60)return m+" min ago";if(m<1440)return Math.round(m/60)+" h ago";return Math.round(m/1440)+" d ago"};
+const hue=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return h};
+function ab(label,cls,action,code){return `<button class="${cls}" ${A.busy?"disabled":""} onclick="act('${action}','${esc(code)}')">${label}</button>`}
+function card(m){
+  const i=A.arm.indexOf(":"),armAct=i>0&&A.arm.slice(i+1)===m.code?A.arm.slice(0,i):"";
+  let b="";
+  if(m.status==="pending")b=ab("Approve","ok","ownerApprove",m.code)+ab("Reject","ghost","ownerReject",m.code);
+  else if(m.status==="active")b=ab("Suspend","ghost","ownerSuspend",m.code);
+  else if(m.status==="suspended")b=ab("Resume","ok","ownerResume",m.code);
+  else if(m.status==="rejected")b=ab("Approve anyway","ghost","ownerApprove",m.code);
+  const nm=m.name||"?",h=hue(nm);
+  const conf=armAct?`<div class="confirm" role="alert"><span>${LBL[armAct]} ${esc(nm)}?</span><div class="acts"><button class="${CLS[armAct]}" ${A.busy?"disabled":""} onclick="act('${armAct}','${esc(m.code)}')">Yes, ${LBL[armAct].toLowerCase()}</button><button class="ghost" onclick="cancel()">Cancel</button></div></div>`:"";
+  return `<div class="card ${esc(m.status)}"><div class="row"><div class="av" style="background:linear-gradient(135deg,hsl(${h} 62% 38%),hsl(${(h+40)%360} 66% 48%))">${esc(nm.trim().charAt(0).toUpperCase())}</div>
+  <div class="who"><div class="name">${esc(nm)}</div><div class="sub">${esc(m.email||"No email")}</div></div><span class="badge b-${esc(m.status)}">${esc(m.status)}</span></div>
+  <div class="meta"><button class="code" style="font-weight:600" onclick="copyCode('${esc(m.code)}')" title="Copy code">${esc(m.code)} <small>${A.copied===m.code?"Copied":"Tap to copy"}</small></button><span class="sub">Requested ${esc(ago(m.createdAt))}</span></div>
+  ${conf||(b?`<div class="acts" style="margin-top:12px">${b}</div>`:"")}</div>`;
+}
+function render(){
+  const a=$("#app"),f=document.activeElement,keep=f&&(f.id==="q"||f.id==="pk")?{id:f.id,s:f.selectionStart}:null;
+  if(A.step==="login")a.innerHTML=`<div class="gate"><div class="gatecard"><div class="gatehead"><div class="lock">🔐</div><h1>Site owner</h1><p>Approve new messes before they go live.</p></div>
+  <div class="gatebody"><input id="pk" type="password" autocomplete="current-password" placeholder="Owner passkey" value="${esc(A.pkIn)}" oninput="A.pkIn=this.value" onkeydown="if(event.key==='Enter')login()"><div class="err" role="status">${esc(A.msg)}</div><button style="width:100%;padding:13px" onclick="login()" ${A.busy?"disabled":""}>${A.busy?"Checking…":"Unlock"}</button></div></div></div>`;
+  else{
+    const c=s=>A.list.filter(m=>s.includes(m.status)),groups={pending:c(["pending"]),active:c(["active"]),other:c(["suspended","rejected"])};
+    const q=A.q.trim().toLowerCase();
+    const list=(groups[A.tab]||[]).filter(m=>!q||[m.name,m.email,m.code].some(v=>String(v||"").toLowerCase().includes(q)));
+    const st=[["pending","Pending","pend"],["active","Active","act"],["other","Suspended or rejected","oth"]];
+    a.innerHTML=`<div class="bar"><div class="top"><h1>Mess requests</h1><div class="icons"><button class="ghost" aria-label="Refresh" onclick="refresh()">↻</button><button class="ghost" onclick="signOut()">Sign out</button></div></div></div>
+    <div class="stats">${st.map(t=>`<button class="stat ${t[2]} ${A.tab===t[0]?"on":""}" onclick="A.tab='${t[0]}';A.arm='';render()"><b>${groups[t[0]].length}</b><span>${t[1]}</span></button>`).join("")}</div>
+    <div class="search"><i>🔎</i><input id="q" type="search" placeholder="Search by name, email or code" value="${esc(A.q)}" oninput="A.q=this.value;render()"></div>
+    ${A.msg?`<div class="toast" role="status">${esc(A.msg)}</div>`:""}
+    ${list.length?list.map(card).join(""):`<div class="empty"><div class="big">${A.tab==="pending"&&!q?"🎉":"🍽️"}</div><p><b>${q?"No matches":A.tab==="pending"?"All caught up":"Nothing here yet"}</b></p><p class="mu">${q?"Try a different name, email or code.":A.tab==="pending"?"New mess requests will show up here.":"Messes will appear here as you manage them."}</p></div>`}`;
+  }
+  if(keep){const e=document.getElementById(keep.id);if(e){e.focus();try{e.setSelectionRange(keep.s,keep.s)}catch(_){}}}
+}
+render();
+</script></body></html>
