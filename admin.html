@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mess Meal Manager Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f0;--card:#fff;--text:#14201d;--mu:#667873;--line:#dbe3e0;--brand:#0f766e;--brand2:#14b8a6;--ink:#0d1f1c;--ok:#15803d;--bad:#b91c1c;--warn:#b45309;--okbg:#dcfce7;--badbg:#fee2e2;--warnbg:#fef3c7;--sh:0 1px 2px rgba(15,40,35,.06),0 8px 24px -12px rgba(15,40,35,.18)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1311;--card:#121e1b;--text:#e6efec;--mu:#8ba39d;--line:#233631;--brand:#2dd4bf;--brand2:#14b8a6;--ink:#050b0a;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--okbg:#10301c;--badbg:#3a1616;--warnbg:#38290a;--sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--bg:#0a1311;--card:#121e1b;--text:#e6efec;--mu:#8ba39d;--line:#233631;--brand:#2dd4bf;--brand2:#14b8a6;--ink:#050b0a;--ok:#4ade80;--bad:#f87171;--warn:#fbbf24;--okbg:#10301c;--badbg:#3a1616;--warnbg:#38290a;--sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6)}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 "DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px 48px}
+h1,.name{font-family:"Bricolage Grotesque","DM Sans",system-ui,sans-serif}
+.mu{color:var(--mu)}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 16px;background:var(--brand);color:#fff;cursor:pointer;transition:transform .12s,opacity .12s}
+button:active{transform:scale(.97)}button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brand2);outline-offset:2px}
+button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.ok{background:var(--ok);color:#fff}button.bad{background:var(--bad);color:#fff}button.warn{background:var(--warn);color:#fff}
+/* login */
+.gate{min-height:100svh;display:grid;place-items:center;padding:20px 0}
+.gatecard{width:100%;max-width:400px;background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--sh);overflow:hidden}
+.gatehead{background:linear-gradient(135deg,var(--ink),#0f766e);color:#fff;padding:28px 24px}
+.lock{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:24px;margin-bottom:14px}
+.gatehead h1{font-size:26px;margin:0 0 4px;line-height:1.15}.gatehead p{margin:0;opacity:.8}
+.gatebody{padding:22px 24px 24px}
+input{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:inherit}
+input:focus{border-color:var(--brand2)}
+.err{color:var(--bad);min-height:22px;margin:10px 0;font-size:14px}
+/* header */
+.bar{position:sticky;top:0;z-index:5;margin:0 -14px;padding:calc(14px + env(safe-area-inset-top,0px)) 14px 12px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top h1{font-size:24px;margin:0;line-height:1.1}
+.icons{display:flex;gap:8px}.icons button{padding:9px 13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:var(--sh);text-align:left;color:var(--text);font-weight:500}
+.stat b{display:block;font:800 28px/1.1 "Bricolage Grotesque",system-ui,sans-serif}
+.stat span{font-size:13px;color:var(--mu)}
+.stat.on{border-color:var(--brand2);box-shadow:0 0 0 2px var(--brand2)}
+.stat.pend b{color:var(--warn)}.stat.act b{color:var(--ok)}.stat.oth b{color:var(--bad)}
+.search{position:relative;margin-bottom:12px}
+.search input{padding-left:42px}.search i{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-style:normal;opacity:.55}
+/* cards */
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px 16px 16px 20px;margin-bottom:12px;box-shadow:var(--sh);overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--st,var(--line))}
+.card.pending{--st:var(--warn)}.card.active{--st:var(--ok)}.card.rejected,.card.suspended{--st:var(--bad)}
+.row{display:flex;gap:12px;align-items:center}
+.av{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff;font:800 19px "Bricolage Grotesque",system-ui,sans-serif}
+.who{min-width:0;flex:1}
+.name{font-weight:800;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
+.sub{font-size:13px;color:var(--mu);overflow-wrap:anywhere}
+.badge{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:99px;text-transform:capitalize}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.b-pending{color:var(--warn);background:var(--warnbg)}.b-active{color:var(--ok);background:var(--okbg)}.b-rejected,.b-suspended{color:var(--bad);background:var(--badbg)}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.code{display:inline-flex;align-items:center;gap:8px;font:600 14px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--text);cursor:pointer}
+.code small{font:500 12px "DM Sans",system-ui,sans-serif;color:var(--mu)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}.acts button{padding:9px 14px}
+.confirm{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;padding:12px;border-radius:14px;background:var(--bg);border:1px solid var(--line);animation:pop .18s ease-out}
+.confirm span{font-weight:700}
+@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.empty{text-align:center;padding:44px 16px;background:var(--card);border:1px dashed var(--line);border-radius:20px}
+.empty .big{font-size:38px}.empty p{margin:6px 0 0}
+.toast{margin:0 0 12px;padding:11px 14px;border-radius:14px;background:var(--badbg);color:var(--bad);font-weight:700;font-size:14px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.stats{grid-template-columns:repeat(3,1fr)}
+.cap{margin:2px 0 12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:var(--sh)}
+.cap .l{display:flex;justify-content:space-between;font-size:13px;color:var(--mu);margin-bottom:8px}.cap .l b{color:var(--text)}
+.meter{height:8px;border-radius:99px;background:var(--bg);overflow:hidden}.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:99px}.meter.full i{background:var(--bad)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.tools button{padding:9px 14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:var(--card);color:var(--text);border:1px solid var(--line);padding:8px 13px;border-radius:99px;font-weight:700;font-size:13.5px}
+.chip b{margin-left:6px;color:var(--mu);font-weight:700}.chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}.chip.on b{color:#fff;opacity:.85}
+.sortrow{display:flex;gap:10px;margin-bottom:12px}.sortrow .search{flex:1;margin:0}
+select{font:inherit;padding:12px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--text)}
+.note{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;padding:12px 14px;border-radius:14px;font-weight:700;font-size:14px;animation:pop .18s ease-out}
+.note.bad{background:var(--badbg);color:var(--bad)}.note.ok{background:var(--okbg);color:var(--ok)}.note.warn{background:var(--warnbg);color:var(--warn)}
+.note .t{flex:1;overflow-wrap:anywhere}.note a{color:inherit}.note .x{background:transparent;color:inherit;padding:0 4px;font-size:18px;line-height:1}
+.warns{margin:0 0 12px;padding:12px 14px;border-radius:14px;background:var(--warnbg);color:var(--warn);font-size:14px;font-weight:600}.warns b{display:block;margin-bottom:4px}.warns ul{margin:0;padding-left:18px}
+.health{margin:0 0 12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--sh)}
+.health h3{margin:0 0 8px;font:800 16px "Bricolage Grotesque",system-ui,sans-serif}.health .r{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px dashed var(--line);font-size:14px}.health .r:first-of-type{border-top:0}
+.health .r span:first-child{flex:none}.health small{display:block;color:var(--mu)}
+.detail{margin-top:12px;padding:14px;border-radius:14px;background:var(--bg);border:1px solid var(--line);animation:pop .18s ease-out}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px}
+.kv div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 11px}.kv b{display:block;font:800 18px/1.2 "Bricolage Grotesque",system-ui,sans-serif;overflow-wrap:anywhere}.kv span{font-size:12px;color:var(--mu)}
+.issues{margin:0 0 12px;padding:0;list-style:none}.issues li{margin:4px 0;padding:8px 10px;border-radius:10px;background:var(--warnbg);color:var(--warn);font-size:13.5px;font-weight:600}.issues li.good{background:var(--okbg);color:var(--ok)}
+.info{font-size:13.5px;color:var(--mu);margin:0 0 10px}.info b{color:var(--text)}
+a.btnlink{display:inline-block;text-decoration:none;font-weight:700;border-radius:12px;padding:9px 14px;border:1px solid var(--line);color:var(--text);font-size:15px}
+.confirm input{flex:1 1 160px;min-width:0;padding:10px 12px}
+.card.deleted{--st:var(--mu);opacity:.8}.b-deleted{color:var(--mu);background:var(--bg)}
+.setcard{margin-bottom:12px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--sh)}.setcard h3{margin:0 0 4px;font:800 18px "Bricolage Grotesque",system-ui,sans-serif}.setcard p{margin:0 0 12px}
+.setcard input{margin-bottom:10px}
+.top h1{font-size:22px;white-space:nowrap}.icons{flex:none}.icons button{white-space:nowrap;padding:9px 11px}
+.spin{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---- v3 layout: fits phones, tablets and desktops ---- */
+html{overflow-x:hidden}body{max-width:100%;overflow-x:clip}
+.wrap{width:100%;max-width:1180px;padding:0 16px 56px}
+.bar{margin:0 -16px;padding-left:16px;padding-right:16px}
+.layout{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+.layout>*{min-width:0}
+@media(min-width:960px){.layout{grid-template-columns:320px minmax(0,1fr);align-items:start}.aside{position:sticky;top:88px}}
+.grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:760px){.grid{grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}}
+.card{margin-bottom:0;min-width:0}.card.open{grid-column:1/-1}
+.stats{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:0}
+.stat{min-width:0}
+.seg{display:flex;gap:4px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0 0 14px;box-shadow:var(--sh)}
+.seg button{flex:1;background:transparent;color:var(--mu);padding:9px 8px;white-space:nowrap}.seg button.on{background:var(--brand);color:#fff}
+.lbl{display:none}@media(min-width:600px){.lbl{display:inline}}
+.top h1{display:flex;align-items:center;gap:10px}
+.pill{font:700 12px "DM Sans",system-ui,sans-serif;background:var(--warn);color:#fff;border-radius:99px;padding:2px 9px}
+.upd{font-size:12px;color:var(--mu);margin:-2px 0 0}
+.panel{margin:0 0 14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--sh)}
+.panel h3{margin:0 0 4px;font:800 17px "Bricolage Grotesque",system-ui,sans-serif}
+.panel textarea,.detail textarea{width:100%;min-height:96px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--text);font:inherit;resize:vertical;margin-bottom:10px}
+.panel input,.detail input{margin-bottom:10px}
+.form label{display:block;font-size:12.5px;font-weight:700;color:var(--mu);margin:0 0 4px}
+.tot{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:10px}
+.tot div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.tot b{display:block;font:800 22px/1.15 "Bricolage Grotesque",system-ui,sans-serif;overflow-wrap:anywhere}.tot span{font-size:12px;color:var(--mu)}
+.chart{width:100%;height:auto;display:block;margin-top:8px}.chart text{fill:var(--mu);font:11px "DM Sans",system-ui,sans-serif}.chart rect{fill:var(--brand2)}.chart rect.z{fill:var(--line)}
+.split{display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--bg);margin:10px 0 8px}.split i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mu)}.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px}
+.rank{list-style:none;margin:8px 0 0;padding:0}.rank li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}.rank li:first-child{border-top:0}.rank .n{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere}.rank .bar2{flex:1.2;height:8px;border-radius:99px;background:var(--bg);overflow:hidden}.rank .bar2 i{display:block;height:100%;background:var(--brand2)}.rank b{min-width:28px;text-align:right}
+.log{list-style:none;margin:0;padding:0}.log li{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line)}.log li:first-child{border-top:0}
+.log .ic{flex:none;width:34px;height:34px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:17px}.log .tx{min-width:0;flex:1;overflow-wrap:anywhere}.log .tx b{display:block}.log .tx small{color:var(--mu)}
+.mini{padding:6px 12px;font-size:13px}
+.tag{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--mu);background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:4px 10px;overflow-wrap:anywhere}
+@media(max-width:380px){.stat b{font-size:24px}.stat span{font-size:12px}.chip{padding:7px 11px}}
+</style></head><body><div class="wrap" id="app"></div>
+<script>const API_URL="https://script.google.com/macros/s/AKfycbyeEFNwCWYiNGrHQ1HJ03GCp01aTGHJk8W6-jIzyCswecSlQXuMibNyk7F7h0-l3Uy1/exec";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+/* the passkey lives in memory only: reloading the page always asks for it again */
+const A={pk:"",step:"login",pkIn:"",msg:"",busy:false,busyMsg:"",list:[],warns:[],limits:{maxMesses:20,live:0},tab:"pending",view:"messes",
+  arm:"",q:"",sort:"new",poll:null,copied:"",det:{},open:{},pan:{},note:null,health:null,delIn:"",set:false,npk:"",npk2:"",first:true,
+  log:null,logBusy:false,ann:false,annArm:false,updated:null,f:{en:"",ee:"",enote:"",es:"",eb:"",as:"",ab:""}};
+const ORDER=["pending","active","suspended","rejected","deleted"];
+const COLORS={pending:"#b45309",active:"#15803d",suspended:"#b91c1c",rejected:"#9a3412",deleted:"#667873"};
+try{const t=localStorage.getItem("adminTheme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute("data-theme");
+  const dark=cur==="dark"||(!cur&&matchMedia("(prefers-color-scheme:dark)").matches);
+  const t=dark?"light":"dark";document.documentElement.setAttribute("data-theme",t);try{localStorage.setItem("adminTheme",t)}catch(e){}
+}
+async function api(body){
+  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});
+  return r.json();
+}
+async function call(body){
+  try{return await api(Object.assign({passkey:A.pk},body))}
+  catch(e){return {ok:false,error:"Network error. Check your connection."}}
+}
+function signOut(m){
+  clearInterval(A.poll);
+  Object.assign(A,{pk:"",step:"login",pkIn:"",msg:m||"",busy:false,list:[],warns:[],arm:"",q:"",det:{},open:{},pan:{},note:null,health:null,delIn:"",set:false,npk:"",npk2:"",first:true,log:null,ann:false,annArm:false,view:"messes"});
+  document.title="Mess Meal Manager Admin Panel";render();
+}
+async function login(){
+  const pk=A.pkIn.trim();
+  if(!pk){A.msg="Enter the passkey.";render();return}
+  A.busy=true;A.msg="";A.pk=pk;render();
+  const j=await call({action:"ownerCheck"});A.busy=false;
+  if(!j||!j.ok){A.pk="";A.msg=(j&&j.error)||"Could not sign in.";render();return}
+  A.step="in";A.pkIn="";await refresh();
+  clearInterval(A.poll);A.poll=setInterval(()=>{if(A.pk&&!document.hidden&&!A.busy&&!(A.health&&A.health.running))refresh(true)},30000);
+}
+async function refresh(quiet){
+  const j=await call({action:"ownerList"});
+  if(j&&j.ok){
+    A.list=j.messes||[];A.warns=j.warnings||[];A.limits=j.limits||A.limits;A.updated=new Date();
+    if(A.first){A.first=false;A.tab=A.list.some(m=>m.status==="pending")?"pending":"all"}
+  }
+  else if(j&&j.error==="Incorrect passkey"){signOut("Incorrect passkey.");return}
+  else if(j&&!quiet)setNote("bad",j.error||"Could not load.");
+  render();
+}
+function setNote(t,m,extra){A.note=Object.assign({t:t,m:m},extra||{})}
+function clearNote(){A.note=null;render()}
+function setView(v){A.view=v;A.arm="";if(v==="activity")loadLog();else render()}
+async function loadLog(){
+  A.logBusy=true;render();
+  const j=await call({action:"ownerLog",n:100});A.logBusy=false;
+  if(j&&j.ok)A.log=j.log||[];else setNote("bad",(j&&j.error)||"Could not load the activity log.");
+  render();
+}
+const LBL={ownerApprove:"Approve",ownerReject:"Reject",ownerSuspend:"Suspend",ownerResume:"Resume",ownerDelete:"Delete",ownerResetPassword:"Reset the admin password of"};
+const YES={ownerApprove:"Yes, approve",ownerReject:"Yes, reject",ownerSuspend:"Yes, suspend",ownerResume:"Yes, resume",ownerDelete:"Delete forever",ownerResetPassword:"Yes, reset"};
+const CLS={ownerApprove:"ok",ownerReject:"bad",ownerSuspend:"warn",ownerResume:"ok",ownerDelete:"bad",ownerResetPassword:"warn"};
+const norm=s=>String(s||"").trim().toLowerCase().replace(/\s+/g,"-");
+async function act(action,code){
+  const key=action+":"+code;
+  if(A.arm!==key){A.arm=key;A.delIn="";render();return}
+  if(action==="ownerDelete"&&norm(A.delIn)!==code)return;
+  const m=A.list.find(x=>x.code===code)||{name:code};
+  A.arm="";A.busy=true;A.busyMsg=action==="ownerApprove"?"Creating the spreadsheet for "+m.name+". This can take up to 30 seconds…":"Working…";A.note=null;render();
+  const j=await call({action:action,code:code,confirm:A.delIn});A.busy=false;A.delIn="";
+  if(!j||!j.ok)setNote("bad",(j&&j.error)||"That did not work.");
+  else if(action==="ownerApprove"){
+    setNote(j.emailed===false?"warn":"ok",m.name+" is approved and its spreadsheet was created."+(j.emailed===false?" The approval email could not be sent, so tell the admin the code: "+code+".":" The admin was emailed."),j.sheetUrl?{link:j.sheetUrl,linkText:"Open sheet"}:null);
+    delete A.det[code];
+  }
+  else if(action==="ownerDelete"){setNote("ok",m.name+" was deleted. Its spreadsheet is in the Drive trash for about 30 days.");delete A.det[code];delete A.open[code]}
+  else if(action==="ownerResetPassword"){
+    if(j.emailed)setNote("ok","A temporary password was emailed to the admin of "+m.name+".");
+    else setNote("warn","The email could not be sent. Temporary password for "+m.name+": "+j.temp,{copy:j.temp});
+  }
+  else setNote("ok",({ownerReject:"Request rejected.",ownerSuspend:m.name+" is suspended. Its members cannot sign in.",ownerResume:m.name+" is active again."})[action]||"Done.");
+  A.log=null;
+  await refresh();
+}
+function cancel(){A.arm="";A.delIn="";A.annArm=false;render()}
+function copyText(text,key){
+  const done=()=>{A.copied=key;render();setTimeout(()=>{if(A.copied===key){A.copied="";render()}},1500)};
+  try{navigator.clipboard.writeText(text).then(done,done)}catch(e){done()}
+}
+const invite=code=>location.href.split(/[?#]/)[0].replace(/[^\/]*$/,"")+"index.html?m="+encodeURIComponent(code);
+async function loadDetail(code,action){
+  A.det[code]={loading:true};render();
+  const j=await call({action:action||"ownerDetail",code:code});
+  if(j&&j.ok){A.det[code]={data:j.stats};if(action==="ownerRepair")setNote("ok",j.created?"A new empty data sheet was created and linked (the old one could not be found).":"Checked and repaired. Everything is in place.")}
+  else{A.det[code]={err:(j&&j.error)||"Could not check this mess."};if(action==="ownerRepair")setNote("bad",A.det[code].err)}
+  A.log=null;
+  if(action==="ownerRepair")await refresh();else render();
+}
+function toggle(code){
+  A.open[code]=!A.open[code];
+  if(A.open[code]&&!A.det[code]){const m=A.list.find(x=>x.code===code);if(m&&(m.status==="active"||m.status==="suspended")){loadDetail(code);return}else A.det[code]={data:{basic:true,issues:[]}}}
+  render();
+}
+function openPanel(code,kind){
+  const m=A.list.find(x=>x.code===code);if(!m)return;
+  A.pan[code]=A.pan[code]===kind?null:kind;
+  if(A.pan[code]==="edit"){A.f.en=m.name;A.f.ee=m.email||"";A.f.enote=m.note||""}
+  if(A.pan[code]==="mail"){A.f.es="";A.f.eb=""}
+  render();
+}
+async function saveEdit(code){
+  const m=A.list.find(x=>x.code===code);if(!m)return;
+  A.busy=true;A.busyMsg="Saving…";render();
+  let j=await call({action:"ownerEdit",code:code,name:A.f.en,email:A.f.ee});
+  if(j&&j.ok&&A.f.enote!==(m.note||""))j=await call({action:"ownerNote",code:code,note:A.f.enote});
+  A.busy=false;
+  if(j&&j.ok){setNote("ok","Saved changes to "+A.f.en.trim()+".");A.pan[code]=null;A.log=null}
+  else setNote("bad",(j&&j.error)||"Could not save.");
+  await refresh();
+}
+async function sendMail(code){
+  if(!A.f.es.trim()||!A.f.eb.trim()){setNote("bad","Write a subject and a message.");render();return}
+  A.busy=true;A.busyMsg="Sending…";render();
+  const j=await call({action:"ownerEmail",code:code,subject:A.f.es,body:A.f.eb});A.busy=false;
+  if(j&&j.ok){setNote("ok","Email sent to the admin.");A.pan[code]=null;A.log=null}else setNote("bad",(j&&j.error)||"Could not send the email.");
+  render();
+}
+async function sendAnnounce(){
+  if(!A.f.as.trim()||!A.f.ab.trim()){setNote("bad","Write a subject and a message.");render();return}
+  const n=new Set(A.list.filter(m=>(m.status==="active"||m.status==="suspended")&&m.email).map(m=>m.email)).size;
+  if(!A.annArm){A.annArm=true;render();return}
+  A.annArm=false;A.busy=true;A.busyMsg="Sending to "+n+" admins…";render();
+  const j=await call({action:"ownerAnnounce",subject:A.f.as,body:A.f.ab});A.busy=false;
+  if(j&&j.ok){setNote(j.failed?"warn":"ok","Announcement sent to "+j.sent+" admin"+(j.sent===1?"":"s")+(j.failed?" ("+j.failed+" failed)":"")+".");A.ann=false;A.f.as=A.f.ab="";A.log=null}
+  else setNote("bad",(j&&j.error)||"Could not send the announcement.");
+  render();
+}
+async function checkAll(){
+  const live=A.list.filter(m=>m.status==="active"||m.status==="suspended");
+  if(!live.length){setNote("warn","There are no approved messes to check yet.");render();return}
+  A.health={running:true,done:0,total:live.length,rows:[]};render();
+  for(const m of live){
+    const j=await call({action:"ownerDetail",code:m.code});
+    const s=j&&j.ok?j.stats:{ok:false,issues:[(j&&j.error)||"Could not check."]};
+    A.det[m.code]={data:s};
+    A.health.rows.push({m:m,s:s});A.health.done++;render();
+  }
+  A.health.running=false;render();
+}
+function exportCsv(){
+  const rows=[["code","name","email","status","requested","note","sheet"]].concat(A.list.map(m=>[m.code,m.name,m.email,m.status,m.createdAt,m.note||"",m.sheetUrl||""]));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download="messes-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+const ago=iso=>{const m=Math.round((Date.now()-new Date(iso).getTime())/60000);if(!(m>=0))return "";if(m<1)return "just now";if(m<60)return m+" min ago";if(m<1440)return Math.round(m/60)+" h ago";return Math.round(m/1440)+" d ago"};
+const hue=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return h};
+const num=n=>Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2});
+const day=iso=>{const d=new Date(iso);return isNaN(d)?"":d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"})};
+const hm=d=>d?d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"";
+function ab(label,cls,action,code){return `<button class="${cls}" ${A.busy?"disabled":""} onclick="act('${action}','${esc(code)}')">${label}</button>`}
+function detail(m){
+  const d=A.det[m.code];let body;
+  if(!d||d.loading)body=`<p class="info"><span class="spin"></span>Checking this mess…</p>`;
+  else if(d.err)body=`<p class="info" style="color:var(--bad)">${esc(d.err)}</p>`;
+  else{
+    const s=d.data||{};
+    const kv=s.basic?"":`<div class="kv"><div><b>${num(s.members)}</b><span>Members</span></div><div><b>${num(s.mealDays)}</b><span>Days with meals</span></div><div><b>${esc(s.lastMeal||"None")}</b><span>Last meal entry</span></div><div><b>${num(s.paid)}</b><span>Collected (${num(s.payments)})</span></div><div><b>${num(s.bought)}</b><span>Spent (${num(s.buys)} buys)</span></div><div><b>${num(s.stories)}</b><span>Live stories</span></div><div><b>${num(s.polls)}</b><span>Polls</span></div><div><b>${s.sheetUpdated?esc(ago(s.sheetUpdated)):"-"}</b><span>Sheet last changed</span></div></div>`;
+    const iss=s.basic?"":(s.issues&&s.issues.length?`<ul class="issues">${s.issues.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<ul class="issues"><li class="good">✓ Spreadsheet is healthy (${num(s.tabs)} tabs)</li></ul>`);
+    body=kv+iss;
+  }
+  const live=m.status==="active"||m.status==="suspended",c=esc(m.code),pan=A.pan[m.code];
+  const link=m.sheetUrl&&m.status!=="deleted"?`<a class="btnlink" href="${esc(m.sheetUrl)}" target="_blank" rel="noopener">Open sheet</a>`:"";
+  let form="";
+  if(pan==="edit")form=`<div class="form" style="margin-top:12px"><label for="en">Mess name</label><input id="en" maxlength="40" value="${esc(A.f.en)}" oninput="A.f.en=this.value"><label for="ee">Admin email</label><input id="ee" type="email" autocapitalize="off" value="${esc(A.f.ee)}" oninput="A.f.ee=this.value"><label for="enote">Private note (only you see this)</label><input id="enote" maxlength="300" value="${esc(A.f.enote)}" oninput="A.f.enote=this.value"><div class="acts"><button ${A.busy?"disabled":""} onclick="saveEdit('${c}')">Save changes</button><button class="ghost" onclick="openPanel('${c}','edit')">Cancel</button></div></div>`;
+  if(pan==="mail")form=`<div class="form" style="margin-top:12px"><label for="es">Subject</label><input id="es" maxlength="120" value="${esc(A.f.es)}" oninput="A.f.es=this.value"><label for="eb">Message to ${esc(m.email)}</label><textarea id="eb" maxlength="2000" oninput="A.f.eb=this.value">${esc(A.f.eb)}</textarea><div class="acts"><button ${A.busy?"disabled":""} onclick="sendMail('${c}')">Send email</button><button class="ghost" onclick="openPanel('${c}','mail')">Cancel</button></div></div>`;
+  return `<div class="detail"><p class="info"><b>Admin email:</b> ${esc(m.email||"No email")}<br><b>Requested:</b> ${esc(day(m.createdAt))} (${esc(ago(m.createdAt))})<br><b>Mess code:</b> ${c}</p>${m.note?`<p class="info"><b>Your note:</b> ${esc(m.note)}</p>`:""}${body}
+  <div class="acts">${link}<button class="ghost" onclick="copyText(invite('${c}'),'inv:${c}')">${A.copied==="inv:"+m.code?"Link copied":"Copy invite link"}</button><button class="ghost" onclick="openPanel('${c}','edit')">Edit</button>${m.email?`<button class="ghost" onclick="openPanel('${c}','mail')">Email admin</button>`:""}${live?`<button class="ghost" ${A.busy?"disabled":""} onclick="loadDetail('${c}','ownerRepair')">Repair</button><button class="ghost" ${A.busy?"disabled":""} onclick="act('ownerResetPassword','${c}')">Reset password</button>`:""}</div>${form}</div>`;
+}
+function card(m){
+  const i=A.arm.indexOf(":"),armAct=i>0&&A.arm.slice(i+1)===m.code?A.arm.slice(0,i):"";
+  let b="";
+  if(m.status==="pending")b=ab("Approve","ok","ownerApprove",m.code)+ab("Reject","ghost","ownerReject",m.code);
+  else if(m.status==="active")b=ab("Suspend","ghost","ownerSuspend",m.code)+ab("Delete","ghost","ownerDelete",m.code);
+  else if(m.status==="suspended")b=ab("Resume","ok","ownerResume",m.code)+ab("Delete","ghost","ownerDelete",m.code);
+  else if(m.status==="rejected")b=ab("Approve anyway","ghost","ownerApprove",m.code)+ab("Delete","ghost","ownerDelete",m.code);
+  if(m.status!=="pending")b+=`<button class="ghost" onclick="toggle('${esc(m.code)}')" aria-expanded="${!!A.open[m.code]}">${A.open[m.code]?"Hide details":"Details"}</button>`;
+  const nm=m.name||"?",h=hue(nm);
+  let conf="";
+  if(armAct==="ownerDelete")conf=`<div class="confirm" role="alert"><span style="flex:1 1 100%">Delete ${esc(nm)} forever? Its spreadsheet goes to the Drive trash and members lose access. Type <b>${esc(m.code)}</b> to confirm.</span><input id="dc" autocomplete="off" autocapitalize="off" placeholder="${esc(m.code)}" value="${esc(A.delIn)}" oninput="A.delIn=this.value;render()"><div class="acts"><button class="bad" ${A.busy||norm(A.delIn)!==m.code?"disabled":""} onclick="act('ownerDelete','${esc(m.code)}')">${YES.ownerDelete}</button><button class="ghost" onclick="cancel()">Cancel</button></div></div>`;
+  else if(armAct)conf=`<div class="confirm" role="alert"><span>${LBL[armAct]} ${esc(nm)}?</span><div class="acts"><button class="${CLS[armAct]}" ${A.busy?"disabled":""} onclick="act('${armAct}','${esc(m.code)}')">${YES[armAct]}</button><button class="ghost" onclick="cancel()">Cancel</button></div></div>`;
+  return `<div class="card ${esc(m.status)} ${A.open[m.code]?"open":""}"><div class="row"><div class="av" style="background:linear-gradient(135deg,hsl(${h} 62% 38%),hsl(${(h+40)%360} 66% 48%))">${esc(nm.trim().charAt(0).toUpperCase())}</div>
+  <div class="who"><div class="name">${esc(nm)}</div><div class="sub">${esc(m.email||"No email")}</div></div><span class="badge b-${esc(m.status)}">${esc(m.status)}</span></div>
+  <div class="meta"><button class="code" style="font-weight:600" onclick="copyText('${esc(m.code)}','c:${esc(m.code)}')" title="Copy code">${esc(m.code)} <small>${A.copied==="c:"+m.code?"Copied":"Tap to copy"}</small></button><span class="sub">Requested ${esc(ago(m.createdAt))}</span></div>
+  ${m.note&&!A.open[m.code]?`<span class="tag">📝 ${esc(m.note)}</span>`:""}
+  ${conf||(b?`<div class="acts" style="margin-top:12px">${b}</div>`:"")}${A.open[m.code]?detail(m):""}</div>`;
+}
+async function savePasskey(){
+  if(A.npk.length<6){setNote("bad","The new passkey must be at least 6 characters.");render();return}
+  if(A.npk!==A.npk2){setNote("bad","The two passkeys do not match.");render();return}
+  A.busy=true;A.busyMsg="Saving…";render();
+  const j=await call({action:"ownerPasskey",newPasskey:A.npk});A.busy=false;
+  if(j&&j.ok){A.pk=A.npk;A.npk=A.npk2="";A.set=false;A.log=null;setNote("ok","Passkey changed. Use the new one next time you sign in.")}
+  else setNote("bad",(j&&j.error)||"Could not change the passkey.");
+  render();
+}
+function healthPanel(){
+  const h=A.health;if(!h)return "";
+  const bad=h.rows.filter(r=>!r.s.ok||(r.s.issues&&r.s.issues.some(x=>!/No members/.test(x)))).length;
+  const head=h.running?`<span class="spin"></span>Checking ${h.done}/${h.total}…`:(bad?`⚠ ${bad} of ${h.total} need attention`:`✓ All ${h.total} messes are healthy`);
+  const rows=h.rows.map(r=>{const ok=r.s.ok&&!(r.s.issues&&r.s.issues.length);return `<div class="r"><span>${ok?"✅":(r.s.ok?"ℹ️":"⚠️")}</span><div><b>${esc(r.m.name)}</b> <span class="sub">${esc(r.m.code)}</span>${ok?`<small>${num(r.s.members)} members · ${num(r.s.mealDays)} meal days · ${num(r.s.stories)} live stories</small>`:`<small>${esc((r.s.issues||[]).join(" "))}</small>`}</div></div>`}).join("");
+  return `<div class="health"><h3>${head}</h3>${rows}${h.running?"":`<div class="acts" style="margin-top:10px"><button class="ghost" onclick="A.health=null;render()">Close</button></div>`}</div>`;
+}
+function noteBox(){
+  return (A.note?`<div class="note ${esc(A.note.t)}" role="status"><span class="t">${esc(A.note.m)}${A.note.link?` <a href="${esc(A.note.link)}" target="_blank" rel="noopener">${esc(A.note.linkText||"Open")}</a>`:""}${A.note.copy?` <button class="ghost mini" style="margin-left:6px" onclick="copyText('${esc(A.note.copy)}','tmp')">${A.copied==="tmp"?"Copied":"Copy"}</button>`:""}</span><button class="x" aria-label="Dismiss" onclick="clearNote()">×</button></div>`:"")+
+    (A.busy?`<div class="note warn" role="status"><span class="t"><span class="spin"></span>${esc(A.busyMsg)}</span></div>`:"");
+}
+function announcePanel(){
+  if(!A.ann)return "";
+  const n=new Set(A.list.filter(m=>(m.status==="active"||m.status==="suspended")&&m.email).map(m=>m.email)).size;
+  return `<div class="panel form"><h3>Announce to all mess admins</h3><p class="sub" style="margin:0 0 12px">Emails the admin of every approved mess (${n} recipient${n===1?"":"s"}).</p><label for="as">Subject</label><input id="as" maxlength="120" value="${esc(A.f.as)}" oninput="A.f.as=this.value"><label for="ab">Message</label><textarea id="ab" maxlength="2000" oninput="A.f.ab=this.value">${esc(A.f.ab)}</textarea>
+  ${A.annArm?`<div class="confirm" role="alert"><span>Send to ${n} admin${n===1?"":"s"} now?</span><div class="acts"><button class="ok" ${A.busy?"disabled":""} onclick="sendAnnounce()">Yes, send</button><button class="ghost" onclick="cancel()">Cancel</button></div></div>`:`<div class="acts"><button ${A.busy||!n?"disabled":""} onclick="sendAnnounce()">Send announcement</button><button class="ghost" onclick="A.ann=false;A.annArm=false;render()">Close</button></div>`}</div>`;
+}
+/* ---- Messes view ---- */
+function messesView(){
+  const L=A.list,cnt=s=>L.filter(m=>m.status===s).length;
+  const tabs=[["all","All",L.filter(m=>m.status!=="deleted").length],["pending","Pending",cnt("pending")],["active","Active",cnt("active")],["suspended","Suspended",cnt("suspended")],["rejected","Rejected",cnt("rejected")],["deleted","Deleted",cnt("deleted")]];
+  const q=A.q.trim().toLowerCase();
+  let list=L.filter(m=>A.tab==="all"?m.status!=="deleted":m.status===A.tab).filter(m=>!q||[m.name,m.email,m.code,m.note].some(v=>String(v||"").toLowerCase().includes(q)));
+  list=list.slice().sort((x,y)=>A.sort==="name"?String(x.name).localeCompare(String(y.name)):A.sort==="old"?(x.createdAt<y.createdAt?-1:1):(x.createdAt<y.createdAt?1:-1));
+  if(A.tab==="all"&&A.sort==="new")list.sort((x,y)=>ORDER.indexOf(x.status)-ORDER.indexOf(y.status)||(x.createdAt<y.createdAt?1:-1));
+  const live=A.limits.live||0,max=A.limits.maxMesses||20,pct=Math.min(100,Math.round(live/max*100));
+  const stat=[["pending","Pending","pend"],["active","Active","act"],["suspended","Suspended","oth"]];
+  const aside=`<div class="aside"><div class="stats">${stat.map(t=>`<button class="stat ${t[2]} ${A.tab===t[0]?"on":""}" onclick="A.tab='${t[0]}';A.arm='';render()"><b>${cnt(t[0])}</b><span>${t[1]}</span></button>`).join("")}</div>
+    <div class="cap"><div class="l"><span>Live messes</span><b>${live} / ${max}</b></div><div class="meter ${live>=max?"full":""}"><i style="width:${pct}%"></i></div></div>
+    ${A.warns.length?`<div class="warns" role="alert"><b>Needs attention</b><ul>${A.warns.map(w=>`<li>${esc(w)}</li>`).join("")}</ul></div>`:""}
+    <div class="tools"><button class="ghost" ${A.busy||(A.health&&A.health.running)?"disabled":""} onclick="checkAll()">✔ Check all</button><button class="ghost" onclick="A.ann=!A.ann;A.annArm=false;render()">📣 Announce</button><button class="ghost" onclick="exportCsv()">⬇ Export CSV</button></div></div>`;
+  const main=`<div>${announcePanel()}${healthPanel()}
+    <div class="chips" role="tablist">${tabs.map(t=>`<button class="chip ${A.tab===t[0]?"on":""}" role="tab" aria-selected="${A.tab===t[0]}" onclick="A.tab='${t[0]}';A.arm='';render()">${t[1]}<b>${t[2]}</b></button>`).join("")}</div>
+    <div class="sortrow"><div class="search"><i>🔎</i><input id="q" type="search" placeholder="Search name, email, code or note ( / )" value="${esc(A.q)}" oninput="A.q=this.value;render()"></div><select aria-label="Sort" onchange="A.sort=this.value;render()"><option value="new" ${A.sort==="new"?"selected":""}>Newest</option><option value="old" ${A.sort==="old"?"selected":""}>Oldest</option><option value="name" ${A.sort==="name"?"selected":""}>Name A-Z</option></select></div>
+    ${list.length?`<div class="grid">${list.map(card).join("")}</div>`:`<div class="empty"><div class="big">${A.tab==="pending"&&!q?"🎉":"🍽️"}</div><p><b>${q?"No matches":A.tab==="pending"?"All caught up":"Nothing here yet"}</b></p><p class="mu">${q?"Try a different name, email or code.":A.tab==="pending"?"New mess requests will show up here.":"Messes will appear here as you manage them."}</p></div>`}</div>`;
+  return `<div class="layout">${aside}${main}</div>`;
+}
+/* ---- Insights view ---- */
+function requestsChart(){
+  const days=[],now=new Date();now.setHours(0,0,0,0);
+  for(let i=13;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);days.push({d:d,n:0})}
+  A.list.forEach(m=>{const t=new Date(m.createdAt);if(isNaN(t))return;t.setHours(0,0,0,0);const k=days.find(x=>x.d.getTime()===t.getTime());if(k)k.n++});
+  const max=Math.max(1,...days.map(x=>x.n)),bw=16,gap=4.6,H=70;
+  const bars=days.map((x,i)=>{const h=Math.max(2,Math.round(x.n/max*H));const X=i*(bw+gap)+2;return `<rect class="${x.n?"":"z"}" x="${X}" y="${H-h+4}" width="${bw}" height="${h}" rx="3"><title>${esc(x.d.toLocaleDateString())}: ${x.n}</title></rect>${x.n?`<text x="${X+bw/2}" y="${H-h+1}" text-anchor="middle">${x.n}</text>`:""}`}).join("");
+  const total=days.reduce((s,x)=>s+x.n,0);
+  return `<h3>Requests, last 14 days</h3><p class="sub" style="margin:0">${total} request${total===1?"":"s"}</p><svg class="chart" viewBox="0 0 290 94" role="img" aria-label="Requests per day for the last 14 days">${bars}<text x="2" y="92">${esc(days[0].d.toLocaleDateString(undefined,{month:"short",day:"numeric"}))}</text><text x="288" y="92" text-anchor="end">Today</text></svg>`;
+}
+function insightsView(){
+  const L=A.list,tot=L.length;
+  const split=ORDER.map(s=>({s:s,n:L.filter(m=>m.status===s).length})).filter(x=>x.n);
+  const stats=L.filter(m=>m.status==="active"||m.status==="suspended").map(m=>({m:m,s:A.det[m.code]&&A.det[m.code].data})).filter(x=>x.s&&x.s.ok&&!x.s.basic);
+  const sum=k=>stats.reduce((a,x)=>a+(Number(x.s[k])||0),0);
+  const liveN=L.filter(m=>m.status==="active"||m.status==="suspended").length;
+  const top=stats.slice().sort((a,b)=>(b.s.members||0)-(a.s.members||0)).slice(0,6),topMax=Math.max(1,...top.map(x=>x.s.members||0));
+  const totals=stats.length?`<div class="tot"><div><b>${num(sum("members"))}</b><span>Members</span></div><div><b>${num(sum("mealDays"))}</b><span>Meal days logged</span></div><div><b>${num(sum("paid"))}</b><span>Collected</span></div><div><b>${num(sum("bought"))}</b><span>Spent on bazar</span></div><div><b>${num(sum("stories"))}</b><span>Live stories</span></div></div><p class="sub" style="margin:10px 0 0">Based on ${stats.length} of ${liveN} approved messes.</p>`:`<p class="sub" style="margin:6px 0 0">Run a check to see member, meal and money totals across every mess.</p>`;
+  return `<div class="layout"><div class="aside"><div class="panel"><h3>Platform totals</h3>${totals}<div class="acts" style="margin-top:12px"><button class="ghost" ${A.busy||(A.health&&A.health.running)?"disabled":""} onclick="checkAll().then(()=>{A.view='insights';render()})">${stats.length?"Refresh numbers":"✔ Check all messes"}</button></div></div>${healthPanel()}</div>
+  <div><div class="panel">${requestsChart()}</div>
+  <div class="panel"><h3>Status split</h3><div class="split" role="img" aria-label="Messes by status">${split.map(x=>`<i style="width:${x.n/tot*100}%;background:${COLORS[x.s]}" title="${esc(x.s)}: ${x.n}"></i>`).join("")}</div><div class="legend">${split.map(x=>`<span style="--c:${COLORS[x.s]}">${esc(x.s)} ${x.n}</span>`).join("")||"No messes yet"}</div></div>
+  <div class="panel"><h3>Biggest messes</h3>${top.length?`<ul class="rank">${top.map(x=>`<li><span class="n">${esc(x.m.name)}</span><span class="bar2"><i style="width:${(x.s.members||0)/topMax*100}%"></i></span><b>${num(x.s.members)}</b></li>`).join("")}</ul>`:`<p class="sub" style="margin:6px 0 0">Appears after a check.</p>`}</div></div></div>`;
+}
+/* ---- Activity view ---- */
+const ICON={request:"📨",approve:"✅",reject:"🚫",suspend:"⏸",resume:"▶️",delete:"🗑",repair:"🛠",password:"🔑",edit:"✏️",email:"✉️",announce:"📣",passkey:"🔐"};
+const TXT={request:"New request",approve:"Approved",reject:"Rejected",suspend:"Suspended",resume:"Resumed",delete:"Deleted",repair:"Repaired",password:"Password reset",edit:"Edited",email:"Emailed admin",announce:"Announcement sent",passkey:"Passkey changed"};
+function activityView(){
+  let body;
+  if(A.logBusy&&!A.log)body=`<p class="info"><span class="spin"></span>Loading activity…</p>`;
+  else if(!A.log||!A.log.length)body=`<div class="empty"><div class="big">🕘</div><p><b>No activity yet</b></p><p class="mu">Approvals, edits and other actions you take will be listed here.</p></div>`;
+  else body=`<ul class="log">${A.log.map(e=>`<li><span class="ic">${ICON[e.action]||"•"}</span><div class="tx"><b>${esc(TXT[e.action]||e.action)}${e.name?" · "+esc(e.name):""}</b><small>${esc(e.detail||"")}${e.detail?" · ":""}${esc(ago(e.time))}</small></div></li>`).join("")}</ul>`;
+  return `<div class="panel"><div class="row" style="justify-content:space-between;margin-bottom:8px"><h3 style="margin:0">Activity</h3><button class="ghost mini" ${A.logBusy?"disabled":""} onclick="loadLog()">↻ Refresh</button></div>${body}</div>`;
+}
+function render(){
+  const a=$("#app"),f=document.activeElement,keep=f&&["q","pk","npk","npk2","dc","en","ee","enote","es","eb","as","ab"].includes(f.id)?{id:f.id,s:f.selectionStart}:null;
+  const pend=A.list.filter(m=>m.status==="pending").length;
+  if(A.step==="in")document.title=(pend?"("+pend+") ":"")+"Mess admin";
+  if(A.step==="login")a.innerHTML=`<div class="gate"><div class="gatecard"><div class="gatehead"><div class="lock">🔐</div><h1>Site owner</h1><p>Approve and manage every mess.</p></div>
+  <div class="gatebody"><input id="pk" type="password" autocomplete="current-password" placeholder="Owner passkey" value="${esc(A.pkIn)}" oninput="A.pkIn=this.value" onkeydown="if(event.key==='Enter')login()"><div class="err" role="status">${esc(A.msg)}</div><button style="width:100%;padding:13px" onclick="login()" ${A.busy?"disabled":""}>${A.busy?"Checking…":"Unlock"}</button></div></div></div>`;
+  else{
+    const views=[["messes","🍽️","Messes"],["insights","📊","Insights"],["activity","🕘","Activity"]];
+    a.innerHTML=`<div class="bar"><div class="top"><div><h1>Mess admin${pend?`<span class="pill" title="Pending requests">${pend}</span>`:""}</h1>${A.updated?`<p class="upd">Updated ${esc(hm(A.updated))}</p>`:""}</div><div class="icons"><button class="ghost" aria-label="Refresh" onclick="refresh()">↻</button><button class="ghost" aria-label="Switch light or dark theme" onclick="toggleTheme()">🌓</button><button class="ghost" aria-label="Settings" onclick="A.set=!A.set;render()">⚙</button><button class="ghost" onclick="signOut()" aria-label="Sign out">⎋<span class="lbl"> Sign out</span></button></div></div></div>
+    <div style="height:12px"></div>
+    <nav class="seg" role="tablist" aria-label="Sections">${views.map(v=>`<button role="tab" class="${A.view===v[0]?"on":""}" aria-label="${v[2]}" title="${v[2]}" aria-selected="${A.view===v[0]}" onclick="setView('${v[0]}')">${v[1]}<span class="lbl"> ${v[2]}</span></button>`).join("")}</nav>
+    ${A.set?`<div class="setcard"><h3>Change passkey</h3><p class="sub">This is the passkey you use to open this panel.</p><input id="npk" type="password" autocomplete="new-password" placeholder="New passkey (6+ characters)" value="${esc(A.npk)}" oninput="A.npk=this.value"><input id="npk2" type="password" autocomplete="new-password" placeholder="Repeat new passkey" value="${esc(A.npk2)}" oninput="A.npk2=this.value" onkeydown="if(event.key==='Enter')savePasskey()"><div class="acts"><button ${A.busy?"disabled":""} onclick="savePasskey()">Save passkey</button><button class="ghost" onclick="A.set=false;A.npk=A.npk2='';render()">Cancel</button></div></div>`:""}
+    ${noteBox()}
+    ${A.view==="messes"?messesView():A.view==="insights"?insightsView():activityView()}`;
+  }
+  if(keep){const e=document.getElementById(keep.id);if(e){e.focus();try{e.setSelectionRange(keep.s,keep.s)}catch(_){}}}
+}
+document.addEventListener("keydown",e=>{
+  if(A.step!=="in")return;
+  const t=e.target&&e.target.tagName;
+  if(e.key==="/"&&t!=="INPUT"&&t!=="TEXTAREA"&&t!=="SELECT"){const q=document.getElementById("q");if(q){e.preventDefault();q.focus()}}
+  else if(e.key==="Escape"&&(A.arm||A.annArm)){cancel()}
+});
+render();
+</script></body></html>
